@@ -1941,7 +1941,19 @@
     let pendingOpenItemId = null;
 
     
-    // Cycle bottle fill level: FULL -> HALF -> LOW -> CRITICAL -> FULL
+    // Set bottle fill level directly: FULL -> HALF -> LOW -> CRITICAL
+    function setFillLevel(itemId, batchId, level) {
+      const item = reagents.find(r => r.id === itemId);
+      if (!item || !item.inUseBatches) return;
+      const batch = item.inUseBatches.find(b => b.id === batchId);
+      if (!batch) return;
+
+      batch.fill = level;
+      saveData();
+      const labelMap = { 'FULL': '~100% Full', 'HALF': '~50% Left', 'LOW': '~25% Low', 'CRITICAL': '<10% Critical' };
+      showToast(`Bottle volume updated: ${labelMap[level]}`);
+    }
+
     function cycleFillLevel(itemId, batchId) {
       const item = reagents.find(r => r.id === itemId);
       if (!item || !item.inUseBatches) return;
@@ -1951,10 +1963,7 @@
       const levels = ['FULL', 'HALF', 'LOW', 'CRITICAL'];
       const currentIdx = levels.indexOf(batch.fill || 'FULL');
       const nextLevel = levels[(currentIdx + 1) % levels.length];
-      batch.fill = nextLevel;
-
-      saveData();
-      showToast(`Bottle fill level updated to: ${nextLevel}`);
+      setFillLevel(itemId, batchId, nextLevel);
     }
 
     function openFromStock(id) {
@@ -2294,28 +2303,51 @@
               else if (days <= 60) expColor = 'text-amber-600 font-medium';
 
               const fill = b.fill || 'FULL';
-              let fillBadge = '';
-              if (fill === 'FULL') fillBadge = '<span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-emerald-200" title="Click to change fill level">~100% Full</span>';
-              else if (fill === 'HALF') fillBadge = '<span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-blue-200" title="Click to change fill level">~50% Left</span>';
-              else if (fill === 'LOW') fillBadge = '<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-amber-200" title="Click to change fill level">~25% Low</span>';
-              else if (fill === 'CRITICAL') fillBadge = '<span class="bg-rose-100 text-rose-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-rose-200" title="Click to change fill level">&lt;10% Nearly Empty</span>';
-
               const willExpireBeforeEmpty = days <= 60 && (fill === 'FULL' || fill === 'HALF');
 
               return `
-                <div class="py-1.5 border-b border-teal-100 last:border-0 space-y-1">
-                  <div class="flex items-center justify-between text-xs">
+                <div class="py-2 border-b border-teal-100 last:border-0 space-y-1.5">
+                  <!-- Bottle & Lot Line -->
+                  <div class="flex flex-wrap items-center justify-between text-xs gap-1.5">
                     <span class="flex items-center space-x-1.5">
-                      <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
-                      <span class="font-bold text-teal-900">${b.qty} bottle${b.qty > 1 ? 's' : ''}</span>
-                      <span class="text-slate-600">Lot: <strong class="font-mono text-slate-800">${b.lot || 'N/A'}</strong></span>
-                      <span onclick="cycleFillLevel('${item.id}', '${b.id}')">${fillBadge}</span>
+                      <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                      <span class="font-bold text-teal-950 text-xs">${b.qty} bottle${b.qty > 1 ? 's' : ''}</span>
+                      <span class="text-slate-600">Lot: <strong class="font-mono text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200 text-xs">${b.lot || 'N/A'}</strong></span>
                     </span>
-                    <span class="${expColor}">Exp: ${b.exp || 'N/A'} ${b.exp ? `(${days}d)` : ''}</span>
+                    <span class="${expColor} font-medium">Exp: <strong>${b.exp || 'N/A'}</strong> ${b.exp ? `<span class="text-[11px] font-normal">(${days}d)</span>` : ''}</span>
                   </div>
+
+                  <!-- Liquid Fill Level Bar Positioned Below the Bottle -->
+                  <div class="bg-white p-2 rounded-lg border border-teal-200/80 shadow-2xs">
+                    <div class="flex items-center justify-between gap-1 flex-wrap">
+                      <span class="text-xs font-semibold text-slate-700 flex items-center">
+                        <i data-lucide="beaker" class="w-3.5 h-3.5 mr-1 text-teal-600"></i> Liquid Level:
+                      </span>
+                      <div class="inline-flex rounded-md shadow-2xs space-x-1" role="group">
+                        <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'FULL')" 
+                          class="px-2.5 py-1 rounded-md font-bold transition text-xs ${fill === 'FULL' ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                          ~100% Full
+                        </button>
+                        <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'HALF')" 
+                          class="px-2.5 py-1 rounded-md font-bold transition text-xs ${fill === 'HALF' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                          ~50% Left
+                        </button>
+                        <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'LOW')" 
+                          class="px-2.5 py-1 rounded-md font-bold transition text-xs ${fill === 'LOW' ? 'bg-amber-500 text-white shadow-sm ring-1 ring-amber-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                          ~25% Low
+                        </button>
+                        <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'CRITICAL')" 
+                          class="px-2.5 py-1 rounded-md font-bold transition text-xs ${fill === 'CRITICAL' ? 'bg-rose-600 text-white shadow-sm ring-1 ring-rose-700 animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                          &lt;10% Critical
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Slow Mover Alert Banner -->
                   ${willExpireBeforeEmpty ? `
-                    <div class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 rounded px-1.5 py-0.5 flex items-center justify-between">
-                      <span>⚠️ <strong>Slow Mover:</strong> Has liquid (${fill === 'FULL' ? '100%' : '50%'}), but expires soon! Discard on ${b.exp}.</span>
+                    <div class="text-xs bg-amber-50 text-amber-900 border border-amber-300 rounded-lg p-2 font-medium flex items-center justify-between">
+                      <span>⚠️ <strong>Slow Mover:</strong> Bottle is ${fill === 'FULL' ? '~100%' : '~50%'} full, but expires on <strong>${b.exp}</strong>! Discard remaining volume by expiration.</span>
                     </div>
                   ` : ''}
                 </div>

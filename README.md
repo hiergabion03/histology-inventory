@@ -76,6 +76,16 @@ STORAGE (SEALED STOCK):
 
 ---
 
+### 3. Visual Liquid Level Gauge (Positioned Below Each Open Bottle):
+* Directly below each active in-use bottle on the bench, there is a dedicated liquid level bar:
+  * `[ ~100% Full ]` (Fresh bottle)
+  * `[ ~50% Left ]` (Plenty remaining / slow-moving)
+  * `[ ~25% Low ]` (Getting low)
+  * `[ <10% Critical ]` (Nearly dry / urgent reorder)
+* **Direct 1-Tap Control:** The font is bold and readable, and she can directly tap any level with gloved fingers to update it instantly.
+
+---
+
 ## 🛠️ 4. Everyday Bench Actions (Quick Cheat-Sheet)
 
 ```
