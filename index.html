@@ -48,7 +48,7 @@
 
       <!-- Quick Action Buttons -->
       <div class="flex items-center space-x-2 text-sm">
-        <button onclick="openModal('help-modal')" class="bg-teal-700 hover:bg-teal-600 text-teal-100 hover:text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="How to Use This App">
+        <button onclick="openModal('help-modal')" class="bg-teal-700 hover:bg-teal-600 text-teal-100 hover:text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="User Guide & Help">
           <i data-lucide="help-circle" class="w-4 h-4 mr-1.5"></i> Guide
         </button>
         <button onclick="openModal('add-item-modal')" class="bg-teal-600 hover:bg-teal-500 text-white font-medium px-3.5 py-2 rounded-lg flex items-center shadow-sm transition">
@@ -88,7 +88,7 @@
       <div onclick="filterByNeedsOrder()" class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-rose-400 transition">
         <div>
           <p class="text-xs font-medium text-rose-600 uppercase tracking-wider font-semibold">Needs Order</p>
-          <p id="kpi-low-stock" class="text-2xl font-bold text-rose-600 mt-1">4</p>
+          <p id="kpi-low-stock" class="text-2xl font-bold text-rose-600 mt-1">0</p>
           <span class="text-xs text-rose-500">Stock &le; Min Qty</span>
         </div>
         <div class="p-3 bg-rose-50 text-rose-600 rounded-lg">
@@ -100,7 +100,7 @@
       <div onclick="filterByExpiring()" class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-400 transition">
         <div>
           <p class="text-xs font-medium text-amber-700 uppercase tracking-wider font-semibold">Expiring / Expired</p>
-          <p id="kpi-expiring" class="text-2xl font-bold text-amber-600 mt-1">3</p>
+          <p id="kpi-expiring" class="text-2xl font-bold text-amber-600 mt-1">0</p>
           <span class="text-xs text-amber-600">&le; 60 days or expired</span>
         </div>
         <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
@@ -112,7 +112,7 @@
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
         <div>
           <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Active In-Use</p>
-          <p id="kpi-in-use" class="text-2xl font-bold text-teal-700 mt-1">16</p>
+          <p id="kpi-in-use" class="text-2xl font-bold text-teal-700 mt-1">0</p>
           <span class="text-xs text-slate-500">Bottles on stain benches</span>
         </div>
         <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
@@ -130,7 +130,7 @@
           <input 
             type="text" 
             id="search-input" 
-            placeholder="Search by reagent name, ref #, lot, stain..."
+            placeholder="Search reagent name, ref #, specific lot, stain..."
             oninput="renderInventory()" 
             class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
           >
@@ -227,9 +227,95 @@
     </div>
   </div>
 
+  <!-- MODAL: SELECT LOT TO OPEN (When Multiple Lots in Stock) -->
+  <div id="select-lot-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-teal-100 text-teal-800 rounded-lg">
+            <i data-lucide="arrow-right-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Select Lot to Open</h3>
+            <p class="text-xs text-slate-500">Pick which sealed lot you are taking to the bench</p>
+          </div>
+        </div>
+        <button onclick="closeModal('select-lot-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div>
+        <p class="text-sm font-bold text-slate-900" id="select-lot-item-name"></p>
+        <p class="text-xs text-slate-500 mb-3" id="select-lot-item-ref"></p>
+        <input type="hidden" id="select-lot-item-id">
+
+        <div class="space-y-2" id="select-lot-options">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-3 border-t">
+        <button type="button" onclick="closeModal('select-lot-modal')" class="px-3.5 py-1.5 border rounded-lg text-slate-600 hover:bg-slate-50 text-xs">Cancel</button>
+        <button type="button" onclick="confirmOpenSpecificLot()" class="px-4 py-1.5 bg-teal-700 hover:bg-teal-600 text-white font-medium rounded-lg text-xs">Confirm Open Bottle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RECEIVE / RESTOCK SHIPMENT WITH SPECIFIC LOT -->
+  <div id="restock-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
+            <i data-lucide="package-plus" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Receive Shipment / Add Lot</h3>
+            <p class="text-xs text-slate-500">Add received bottles with specific Lot # and Expiry Date</p>
+          </div>
+        </div>
+        <button onclick="closeModal('restock-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <p class="font-bold text-slate-800" id="restock-item-name"></p>
+        <input type="hidden" id="restock-item-id">
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Bottles Received to Add to Stock</label>
+          <div class="flex items-center space-x-2">
+            <button onclick="changeRestockCount(-1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">-</button>
+            <input type="number" id="restock-qty" min="1" value="1" class="w-20 text-center font-bold text-lg border rounded-lg py-1.5">
+            <button onclick="changeRestockCount(1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">+</button>
+            <button onclick="setRestockCount(2)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+2</button>
+            <button onclick="setRestockCount(4)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+4</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Specific Lot # *</label>
+          <input type="text" id="restock-lot" required placeholder="e.g. 261001 or 249224" class="w-full px-3 py-2 border rounded-lg font-mono text-sm focus:ring-2 focus:ring-teal-600">
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Specific Expiration Date *</label>
+          <input type="date" id="restock-exp" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-teal-600">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('restock-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 text-xs">Cancel</button>
+          <button type="button" onclick="confirmRestock()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg text-xs">Add to Stock</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ADD / EDIT REAGENT -->
   <div id="add-item-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] flex flex-col p-6 space-y-4">
       <div class="flex justify-between items-center border-b pb-3">
         <h3 class="text-lg font-bold text-slate-800" id="modal-title">Add New Reagent</h3>
         <button onclick="closeModal('add-item-modal')" class="text-slate-400 hover:text-slate-600">
@@ -237,22 +323,22 @@
         </button>
       </div>
 
-      <form id="reagent-form" onsubmit="saveReagent(event)" class="space-y-3 text-sm">
+      <form id="reagent-form" onsubmit="saveReagent(event)" class="space-y-3 text-sm overflow-y-auto pr-1 flex-1">
         <input type="hidden" id="form-id">
         
         <div>
           <label class="block font-medium text-slate-700 mb-1">Item Name *</label>
-          <input type="text" id="form-name" required placeholder="e.g. 1% Alcian Blue Solution" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          <input type="text" id="form-name" required placeholder="e.g. 5% Phosphotungstic Acid (Pentachrome Stain Kit)" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-medium text-slate-700 mb-1">Reference # / Kit</label>
-            <input type="text" id="form-ref" placeholder="KC4172 (Kit # KTRMPPT)" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+            <input type="text" id="form-ref" placeholder="AHP0650 (Kit # KTRMPPT)" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
           <div>
             <label class="block font-medium text-slate-700 mb-1">Manufacturer</label>
-            <input type="text" id="form-mfg" placeholder="StatLab, Newcomer, etc." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+            <input type="text" id="form-mfg" placeholder="StatLab / American MasterTech" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
         </div>
 
@@ -276,7 +362,7 @@
             <input type="number" id="form-min" min="0" required value="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Stock (Unopened)</label>
+            <label class="block font-medium text-slate-700 mb-1">Stock (Sealed)</label>
             <input type="number" id="form-stock" min="0" required value="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
           <div>
@@ -287,68 +373,25 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Lot Number</label>
-            <input type="text" id="form-lot" placeholder="Lot: 255378" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+            <label class="block font-medium text-slate-700 mb-1">Primary Lot #</label>
+            <input type="text" id="form-lot" placeholder="Lot: 261001" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Expiration Date</label>
+            <label class="block font-medium text-slate-700 mb-1">Primary Expiration Date</label>
             <input type="date" id="form-exp" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
           </div>
         </div>
 
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Comments / Multi-Lot Notes</label>
-          <textarea id="form-comments" rows="2" placeholder="e.g. In Use - Exp: 10/31/2026 Lot 232007; Stock - Exp: 1/31/2027" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600"></textarea>
+          <label class="block font-medium text-slate-700 mb-1">Multi-Lot Comments / Lab Notes</label>
+          <textarea id="form-comments" rows="3" placeholder="In Use - Exp: 7/31/2027 Lot 261001&#10;Stock - (2) Exp: 7/31/2027 Lot 261001&#10;        (2) Exp: 3/31/2027 Lot 249224" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600 font-mono text-xs"></textarea>
         </div>
 
         <div class="flex justify-end space-x-2 pt-3 border-t">
-          <button type="button" onclick="closeModal('add-item-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button type="submit" class="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-medium rounded-lg">Save Reagent</button>
+          <button type="button" onclick="closeModal('add-item-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50 text-xs">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-medium rounded-lg text-xs">Save Reagent</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- MODAL: RECEIVE / RESTOCK SHIPMENT -->
-  <div id="restock-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-800">Receive Shipment / Restock</h3>
-        <button onclick="closeModal('restock-modal')" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="space-y-3 text-sm">
-        <p class="font-medium text-slate-800" id="restock-item-name"></p>
-        <input type="hidden" id="restock-item-id">
-
-        <div>
-          <label class="block font-medium text-slate-700 mb-1">Bottles Received to Add to Stock</label>
-          <div class="flex items-center space-x-2">
-            <button onclick="changeRestockCount(-1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">-</button>
-            <input type="number" id="restock-qty" min="1" value="1" class="w-20 text-center font-bold text-lg border rounded-lg py-1.5">
-            <button onclick="changeRestockCount(1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">+</button>
-            <button onclick="setRestockCount(2)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+2</button>
-            <button onclick="setRestockCount(5)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+5</button>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-medium text-slate-700 mb-1">New Lot # (optional)</label>
-          <input type="text" id="restock-lot" placeholder="e.g. 264901" class="w-full px-3 py-2 border rounded-lg">
-        </div>
-
-        <div>
-          <label class="block font-medium text-slate-700 mb-1">New Expiration Date (optional)</label>
-          <input type="date" id="restock-exp" class="w-full px-3 py-2 border rounded-lg">
-        </div>
-
-        <div class="flex justify-end space-x-2 pt-3 border-t">
-          <button type="button" onclick="closeModal('restock-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
-          <button type="button" onclick="confirmRestock()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg">Confirm Restock</button>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -362,7 +405,7 @@
           </div>
           <div>
             <h3 class="text-lg font-bold text-slate-800">Histology 205 User Guide</h3>
-            <p class="text-xs text-slate-500">Quick cheat-sheet for daily routine and bi-weekly audits</p>
+            <p class="text-xs text-slate-500">Quick cheat-sheet for daily routine, multi-lot tracking, and bi-weekly audits</p>
           </div>
         </div>
         <button onclick="closeModal('help-modal')" class="text-slate-400 hover:text-slate-600">
@@ -376,12 +419,13 @@
         <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
           <h4 class="font-bold text-teal-900 flex items-center text-sm mb-1">
             <i data-lucide="layers" class="w-4 h-4 mr-1.5 text-teal-700"></i>
-            1. The Core Rule: Stock (Sealed) vs. In-Use (Open)
+            1. Tracking Specific Lot Numbers (Stock vs. In-Use)
           </h4>
           <p class="text-xs text-teal-800 leading-relaxed">
-            • <strong>Stock (Sealed):</strong> Bottles stored in flammables, acid cabinets, or 4°C refrigerators.<br>
-            • <strong>In-Use (Open):</strong> The active bottle currently on the special staining bench or autostainer.<br>
-            • <strong>Total = Stock + In-Use.</strong>
+            Reagents can have multiple lot numbers simultaneously!<br>
+            • <strong>In-Use (Bench):</strong> Shows the exact bottle and lot currently open on the bench.<br>
+            • <strong>Stock (Storage):</strong> Shows all unopened bottles split by their exact <strong>Lot #</strong> and <strong>Expiration Date</strong>.<br>
+            • <strong>FEFO (First-Expired, First-Out):</strong> The app highlights the lot that expires earliest with a badge so you know which one to open next.
           </p>
         </div>
 
@@ -394,15 +438,15 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
             <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
               <strong class="text-teal-800 font-semibold block mb-1">⚡ Open New Bottle</strong>
-              <p>When you take a sealed bottle from the cabinet to the bench. It decreases <strong>Stock by 1</strong> and increases <strong>In-Use by 1</strong>. If total drops to or below <strong>MIN QTY</strong>, it flags red automatically.</p>
+              <p>When you take a sealed bottle to the bench. If you have multiple lots in stock, the app asks which lot you are opening (recommending the earliest expiring one!). Stock drops by 1, In-Use goes up by 1.</p>
             </div>
             <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
               <strong class="text-slate-800 font-semibold block mb-1">✓ Finish Bottle</strong>
-              <p>When an in-use bottle runs dry. You can either discard it, or immediately pull a fresh replacement from stock with 1 click.</p>
+              <p>When an in-use bottle runs dry. You can discard it, or immediately pull a replacement from stock with 1 click.</p>
             </div>
             <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
-              <strong class="text-emerald-700 font-semibold block mb-1">📦 Receive Shipment</strong>
-              <p>When a package arrives from StatLab, MasterTech, or Newcomer. Add the new bottles to Stock and record the new Lot # and Expiry Date.</p>
+              <strong class="text-emerald-700 font-semibold block mb-1">📦 Receive Shipment / Add Lot</strong>
+              <p>When new bottles arrive from StatLab or Newcomer. Add the bottles with their exact Lot # and Expiration Date.</p>
             </div>
             <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
               <strong class="text-rose-700 font-semibold block mb-1">🛒 Needs Order</strong>
@@ -414,31 +458,12 @@
         <!-- Step 3 -->
         <div>
           <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
-            <i data-lucide="filter" class="w-4 h-4 mr-1.5 text-teal-600"></i>
-            3. Checking Special Stain Kits
-          </h4>
-          <p class="text-xs text-slate-600 leading-relaxed mb-2">
-            Stains like <strong>Russell Movat Pentachrome</strong> require 7 distinct reagents. Click the stain pills (e.g. <em>Movat, Giemsa, Congo Red, Gram, Reticulin</em>) at the top to check at a glance if every required component is in stock and unexpired.
-          </p>
-        </div>
-
-        <!-- Step 4 -->
-        <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
             <i data-lucide="printer" class="w-4 h-4 mr-1.5 text-blue-600"></i>
-            4. Bi-Weekly Audit & CAP Binder Printout
+            3. Bi-Weekly Audit & CAP Binder Printout
           </h4>
           <p class="text-xs text-slate-600 leading-relaxed">
-            Click <strong>"Bi-Weekly Audit Print"</strong> anytime to generate a clean, official report formatted exactly to your lab's <em>Histology 205 (v1.0)</em> document. It includes checklist verification boxes for <strong>Storage Temp</strong> and <strong>Expiry Date</strong>, plus lines for your initials and supervisor sign-off.
+            Click <strong>"Bi-Weekly Audit Print"</strong> to generate the exact printable checklist matching your lab's <em>Histology 205 (v1.0)</em> document with multi-lot breakdowns, temperature verification, expiry verification, and supervisor sign-off lines.
           </p>
-        </div>
-
-        <!-- Step 5 -->
-        <div class="border-t pt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>💾 All changes save automatically to this computer.</span>
-          <button onclick="exportCSV()" class="text-teal-700 font-semibold hover:underline flex items-center">
-            <i data-lucide="download" class="w-3.5 h-3.5 mr-1"></i> Download Backup File
-          </button>
         </div>
 
       </div>
@@ -457,7 +482,23 @@
 
   <!-- APPLICATION LOGIC -->
   <script>
-    // Initial Real Data from Her Spreadsheet
+    // Storage Key Bumped for Multi-Lot Support
+    const STORAGE_KEY = "histology_inventory_v3_multilot";
+    let reagents = [];
+    let currentFilter = 'ALL';
+    let currentStainFilter = 'ALL';
+
+    // Helper: Days until expiration
+    function getDaysUntilExp(expDateString) {
+      if (!expDateString) return 9999;
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const exp = new Date(expDateString);
+      const diffTime = exp - today;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // Pre-loaded real data with all specific lot numbers (Embedded for offline file:// support)
     const INITIAL_REAGENTS = [
   {
     "id": "1",
@@ -472,7 +513,23 @@
     "lot": "255378",
     "exp": "2026-09-30",
     "comments": "Exp: 9/30/2026 Lot: 255378",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688449_jkk1",
+        "qty": 1,
+        "lot": "255378",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688449_nj4n",
+        "qty": 4,
+        "lot": "255378",
+        "exp": "2026-09-30"
+      }
+    ]
   },
   {
     "id": "2",
@@ -487,7 +544,23 @@
     "lot": "232007",
     "exp": "2026-10-31",
     "comments": "In Use - Exp: 10/31/2026 Lot 232007\nStock -  Exp: 1/31/2027 Lot 240264",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688452_p7ze",
+        "qty": 1,
+        "lot": "232007",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_bmhq",
+        "qty": 1,
+        "lot": "240264",
+        "exp": "2027-01-31"
+      }
+    ]
   },
   {
     "id": "3",
@@ -502,7 +575,16 @@
     "lot": "241821",
     "exp": "2026-11-30",
     "comments": "Exp: 11/30/2026 Lot: 241821",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_07d8",
+        "qty": 1,
+        "lot": "241821",
+        "exp": "2026-11-30"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "4",
@@ -517,7 +599,23 @@
     "lot": "247858",
     "exp": "2027-01-31",
     "comments": "Exp: 1/31/2027 Lot 247858",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_vpss",
+        "qty": 1,
+        "lot": "247858",
+        "exp": "2027-01-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_qdu0",
+        "qty": 1,
+        "lot": "247858",
+        "exp": "2027-01-31"
+      }
+    ]
   },
   {
     "id": "5",
@@ -532,7 +630,16 @@
     "lot": "245560",
     "exp": "2026-12-31",
     "comments": "Exp: 12/31/2026 Lot 245560",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_nkg0",
+        "qty": 1,
+        "lot": "245560",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "6",
@@ -547,7 +654,29 @@
     "lot": "261001",
     "exp": "2027-07-31",
     "comments": "In Use - Exp: 7/31/2027 Lot 261001\nStock -  (2) Exp: 7/31/2027 Lot 261001\n               (2) Exp: 3/31/2027 Lot 249224",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_1i8z",
+        "qty": 1,
+        "lot": "261001",
+        "exp": "2027-07-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_5fsy",
+        "qty": 2,
+        "lot": "261001",
+        "exp": "2027-07-31"
+      },
+      {
+        "id": "stk_1794205688453_3a5n",
+        "qty": 2,
+        "lot": "249224",
+        "exp": "2027-03-31"
+      }
+    ]
   },
   {
     "id": "7",
@@ -562,7 +691,16 @@
     "lot": "260340",
     "exp": "2027-06-30",
     "comments": "Exp: 6/30/2027 Lot 260340",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_e7vj",
+        "qty": 2,
+        "lot": "260340",
+        "exp": "2027-06-30"
+      }
+    ]
   },
   {
     "id": "8",
@@ -577,7 +715,16 @@
     "lot": "232592",
     "exp": "2026-12-31",
     "comments": "Exp: 12/31/2026 Lot 232592",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_tso4",
+        "qty": 1,
+        "lot": "232592",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "9",
@@ -592,7 +739,16 @@
     "lot": "239130",
     "exp": "2027-03-31",
     "comments": "Exp: 3/31/2027 Lot 239130",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_oyyn",
+        "qty": 1,
+        "lot": "239130",
+        "exp": "2027-03-31"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "10",
@@ -607,7 +763,23 @@
     "lot": "242570",
     "exp": "2027-10-31",
     "comments": "Exp: 10/31/2027 Lot 242570",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_yr8l",
+        "qty": 1,
+        "lot": "242570",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_jqig",
+        "qty": 1,
+        "lot": "242570",
+        "exp": "2027-10-31"
+      }
+    ]
   },
   {
     "id": "11",
@@ -622,7 +794,23 @@
     "lot": "258054",
     "exp": "2026-10-31",
     "comments": "Exp: 10/31/2026 Lot258054",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_7bok",
+        "qty": 1,
+        "lot": "258054",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_413o",
+        "qty": 3,
+        "lot": "258054",
+        "exp": "2026-10-31"
+      }
+    ]
   },
   {
     "id": "12",
@@ -637,7 +825,16 @@
     "lot": "87253",
     "exp": "2027-07-28",
     "comments": "Exp: 7/2027 Lot 87253",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_8x9z",
+        "qty": 1,
+        "lot": "87253",
+        "exp": "2027-07-28"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "13",
@@ -652,7 +849,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "14",
@@ -667,7 +866,16 @@
     "lot": "247738",
     "exp": "2027-10-31",
     "comments": "Exp: 10/31/2027 Lot 247738",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_9rzn",
+        "qty": 1,
+        "lot": "247738",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "15",
@@ -682,7 +890,16 @@
     "lot": "264691",
     "exp": "2027-03-05",
     "comments": "Exp: 3/5/2027 Lot 264691",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_va5e",
+        "qty": 1,
+        "lot": "264691",
+        "exp": "2027-03-05"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "16",
@@ -697,7 +914,23 @@
     "lot": "251116",
     "exp": "2027-02-29",
     "comments": "Exp: 2/29/2027 Lot 251116",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_j7sc",
+        "qty": 1,
+        "lot": "251116",
+        "exp": "2027-02-29"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_ynev",
+        "qty": 1,
+        "lot": "251116",
+        "exp": "2027-02-29"
+      }
+    ]
   },
   {
     "id": "17",
@@ -712,7 +945,23 @@
     "lot": "256053",
     "exp": "2027-04-30",
     "comments": "Exp 4/30/2027 Lot 256053",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_fqcr",
+        "qty": 1,
+        "lot": "256053",
+        "exp": "2027-04-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_regz",
+        "qty": 1,
+        "lot": "256053",
+        "exp": "2027-04-30"
+      }
+    ]
   },
   {
     "id": "18",
@@ -727,7 +976,29 @@
     "lot": "251117",
     "exp": "2027-01-31",
     "comments": "In Use - Exp: 1/31/2027 Lot 251117\nStock -  (1) Exp: 1/31/2027 Lot 251117\n               (2) Exp: 3/31/2027 Lot 256747",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_ycju",
+        "qty": 3,
+        "lot": "251117",
+        "exp": "2027-01-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_24z3",
+        "qty": 1,
+        "lot": "251117",
+        "exp": "2027-01-31"
+      },
+      {
+        "id": "stk_1794205688453_33hq",
+        "qty": 2,
+        "lot": "256747",
+        "exp": "2027-03-31"
+      }
+    ]
   },
   {
     "id": "19",
@@ -742,7 +1013,23 @@
     "lot": "243826",
     "exp": "2026-12-31",
     "comments": "In Use - Exp: 12/31/2026 Lot 243826\nStock - Exp: 5/31/2027 Lot 258211",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_pap0",
+        "qty": 1,
+        "lot": "243826",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_x4su",
+        "qty": 1,
+        "lot": "258211",
+        "exp": "2027-05-31"
+      }
+    ]
   },
   {
     "id": "20",
@@ -757,7 +1044,23 @@
     "lot": "248674",
     "exp": "2027-05-31",
     "comments": "In Use - Exp: 5/31/2027 Lot 248674\nStock - Exp: 9/30/3037 Lot 261093",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_d3f8",
+        "qty": 1,
+        "lot": "248674",
+        "exp": "2027-05-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_mq0c",
+        "qty": 6,
+        "lot": "261093",
+        "exp": "3037-09-30"
+      }
+    ]
   },
   {
     "id": "21",
@@ -772,7 +1075,29 @@
     "lot": "237377",
     "exp": "2026-08-31",
     "comments": "In Use - Exp: 8/31/2026 Lot 237377\nStock -  (1) Exp: 8/31/2026 Lot 237377\n               (1) Exp: 3/31/2027 Lot 256103",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_5gdy",
+        "qty": 2,
+        "lot": "237377",
+        "exp": "2026-08-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_tktr",
+        "qty": 1,
+        "lot": "237377",
+        "exp": "2026-08-31"
+      },
+      {
+        "id": "stk_1794205688453_tcwa",
+        "qty": 1,
+        "lot": "256103",
+        "exp": "2027-03-31"
+      }
+    ]
   },
   {
     "id": "22",
@@ -787,7 +1112,29 @@
     "lot": "229157",
     "exp": "2027-05-31",
     "comments": "In Use - Exp: 5/31/2027 Lot 229157\nStock -  (1) Exp: 12/31/2027 Lot 246128\n               (1) Exp: 10/31/2027 Lot 241748",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_psaa",
+        "qty": 2,
+        "lot": "229157",
+        "exp": "2027-05-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_0xrq",
+        "qty": 1,
+        "lot": "246128",
+        "exp": "2027-12-31"
+      },
+      {
+        "id": "stk_1794205688453_xa7q",
+        "qty": 1,
+        "lot": "241748",
+        "exp": "2027-10-31"
+      }
+    ]
   },
   {
     "id": "23",
@@ -802,7 +1149,23 @@
     "lot": "247833",
     "exp": "2026-09-30",
     "comments": "In Use - Exp: 9/30/2026 Lot 247833\nStock - Exp: 4/30/2027 Lot 266990",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_52ue",
+        "qty": 1,
+        "lot": "247833",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_7bqb",
+        "qty": 1,
+        "lot": "266990",
+        "exp": "2027-04-30"
+      }
+    ]
   },
   {
     "id": "24",
@@ -817,7 +1180,16 @@
     "lot": "247833",
     "exp": "2026-09-30",
     "comments": "Exp: 9/30/2026 lot 247833",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_3ti9",
+        "qty": 1,
+        "lot": "247833",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "25",
@@ -832,7 +1204,16 @@
     "lot": "2600809",
     "exp": "2030-01-18",
     "comments": "Exp: 1/18/2030 Lot 2600809",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_0o80",
+        "qty": 1,
+        "lot": "2600809",
+        "exp": "2030-01-18"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "26",
@@ -847,7 +1228,16 @@
     "lot": "241750",
     "exp": "2027-10-31",
     "comments": "Exp: 10/31/2027 Lot 241750",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_n9fs",
+        "qty": 1,
+        "lot": "241750",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": []
   },
   {
     "id": "27",
@@ -862,7 +1252,23 @@
     "lot": "2526130",
     "exp": "2026-09-30",
     "comments": "In Use - Exp: 9/30/2026 Lot 2526130\nStock - Exp: 6/8/2027 Lot 2614735",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_21j8",
+        "qty": 1,
+        "lot": "2526130",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_ge66",
+        "qty": 1,
+        "lot": "2614735",
+        "exp": "2027-06-08"
+      }
+    ]
   },
   {
     "id": "28",
@@ -877,7 +1283,23 @@
     "lot": "254418",
     "exp": "2027-09-30",
     "comments": "Exp: 9/30/2027 Lot 254418",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_0bj5",
+        "qty": 1,
+        "lot": "254418",
+        "exp": "2027-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_1tlk",
+        "qty": 1,
+        "lot": "254418",
+        "exp": "2027-09-30"
+      }
+    ]
   },
   {
     "id": "29",
@@ -892,7 +1314,23 @@
     "lot": "241418",
     "exp": "2026-10-31",
     "comments": "In Use - Exp: 10/31/2026 Lot 241418\nStock - Exp: 1/31/2027 Lot 266975",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_4h7m",
+        "qty": 1,
+        "lot": "241418",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_3jb6",
+        "qty": 1,
+        "lot": "266975",
+        "exp": "2027-01-31"
+      }
+    ]
   },
   {
     "id": "30",
@@ -907,7 +1345,23 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": false
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_z4zh",
+        "qty": 17,
+        "lot": "",
+        "exp": ""
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_hqoi",
+        "qty": 1,
+        "lot": "",
+        "exp": ""
+      }
+    ]
   },
   {
     "id": "31",
@@ -922,7 +1376,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "32",
@@ -937,7 +1393,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "33",
@@ -952,7 +1410,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "34",
@@ -967,7 +1427,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "35",
@@ -982,7 +1444,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "36",
@@ -997,7 +1461,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "37",
@@ -1012,7 +1478,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "38",
@@ -1027,7 +1495,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "39",
@@ -1042,7 +1512,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "40",
@@ -1057,7 +1529,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "41",
@@ -1072,7 +1546,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "42",
@@ -1087,7 +1563,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "43",
@@ -1102,7 +1580,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "44",
@@ -1117,7 +1597,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "45",
@@ -1132,7 +1614,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "46",
@@ -1147,7 +1631,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "47",
@@ -1162,7 +1648,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "48",
@@ -1177,7 +1665,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "49",
@@ -1192,7 +1682,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "50",
@@ -1207,7 +1699,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "51",
@@ -1222,7 +1716,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "52",
@@ -1237,7 +1733,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "53",
@@ -1252,7 +1750,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "54",
@@ -1267,7 +1767,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "55",
@@ -1282,7 +1784,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "56",
@@ -1297,7 +1801,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "57",
@@ -1312,7 +1818,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "58",
@@ -1327,7 +1835,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "59",
@@ -1342,7 +1852,9 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   },
   {
     "id": "60",
@@ -1357,129 +1869,281 @@
     "lot": "",
     "exp": "",
     "comments": "",
-    "needsOrder": true
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
   }
 ];
-
-    // Local Storage Management
-    const STORAGE_KEY = "histology_inventory_v2";
-    let reagents = [];
-    let currentFilter = 'ALL';
-    let currentStainFilter = 'ALL';
 
     function loadData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
           reagents = JSON.parse(saved);
+          syncCounts();
+          updateKPIs();
+          renderInventory();
+          return;
         } catch (e) {
-          reagents = [...INITIAL_REAGENTS];
+          console.error("Error reading saved data:", e);
         }
-      } else {
-        reagents = [...INITIAL_REAGENTS];
-        saveData();
       }
+
+      reagents = JSON.parse(JSON.stringify(INITIAL_REAGENTS));
+      syncCounts();
+      saveData();
+    }
+
+    function syncCounts() {
+      reagents.forEach(item => {
+        // Recalculate stock from stockBatches
+        if (Array.isArray(item.stockBatches)) {
+          item.stock = item.stockBatches.reduce((acc, b) => acc + (parseInt(b.qty) || 0), 0);
+        }
+        // Recalculate inUse from inUseBatches
+        if (Array.isArray(item.inUseBatches)) {
+          item.inUse = item.inUseBatches.reduce((acc, b) => acc + (parseInt(b.qty) || 0), 0);
+        }
+        const total = item.stock + item.inUse;
+        if (total <= item.min || item.stock === 0) {
+          item.needsOrder = true;
+        }
+      });
     }
 
     function saveData() {
+      syncCounts();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(reagents));
       updateKPIs();
       renderInventory();
     }
 
     function resetToSampleData() {
-      if (confirm("Reset inventory back to original sample data from the spreadsheet?")) {
-        reagents = JSON.parse(JSON.stringify(INITIAL_REAGENTS));
-        saveData();
-        showToast("Reset to original 18 reagents!");
+      if (confirm("Reset inventory back to original sample data with all specific lot numbers?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadData();
+        showToast("Reset to original data with specific lots!");
       }
     }
 
-    // Helper: Days until expiration
-    function getDaysUntilExp(expDateString) {
-      if (!expDateString) return 9999;
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const exp = new Date(expDateString);
-      const diffTime = exp - today;
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Modal Helpers
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
     }
 
-    // Core Logic: Open New Bottle from Stock into In-Use
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // ----------------------------------------------------
+    // CORE WORKFLOW: OPEN NEW BOTTLE WITH SPECIFIC LOT
+    // ----------------------------------------------------
+    let pendingOpenItemId = null;
+
+    
+    // Cycle bottle fill level: FULL -> HALF -> LOW -> CRITICAL -> FULL
+    function cycleFillLevel(itemId, batchId) {
+      const item = reagents.find(r => r.id === itemId);
+      if (!item || !item.inUseBatches) return;
+      const batch = item.inUseBatches.find(b => b.id === batchId);
+      if (!batch) return;
+
+      const levels = ['FULL', 'HALF', 'LOW', 'CRITICAL'];
+      const currentIdx = levels.indexOf(batch.fill || 'FULL');
+      const nextLevel = levels[(currentIdx + 1) % levels.length];
+      batch.fill = nextLevel;
+
+      saveData();
+      showToast(`Bottle fill level updated to: ${nextLevel}`);
+    }
+
     function openFromStock(id) {
       const item = reagents.find(r => r.id === id);
       if (!item) return;
 
-      if (item.stock <= 0) {
-        showToast(`Cannot open bottle: No unopened stock available for "${item.name}"!`, true);
+      if (!item.stockBatches || item.stockBatches.length === 0 || item.stock <= 0) {
+        showToast(`Cannot open: No sealed stock available for "${item.name}"!`, true);
         return;
       }
 
-      // Decrement stock, increment in-use
-      item.stock -= 1;
-      item.inUse += 1;
+      // If only 1 stock lot batch exists, open it directly!
+      if (item.stockBatches.length === 1) {
+        executeOpenBatch(item, item.stockBatches[0].id);
+        return;
+      }
 
-      // Automatically check low stock
-      const total = item.stock + item.inUse;
-      if (total <= item.min || item.stock === 0) {
-        item.needsOrder = true;
+      // Multiple lot batches exist! Open modal to let her pick which lot
+      pendingOpenItemId = id;
+      document.getElementById("select-lot-item-id").value = id;
+      document.getElementById("select-lot-item-name").innerText = item.name;
+      document.getElementById("select-lot-item-ref").innerText = `${item.ref} • ${item.mfg}`;
+
+      // Sort batches: earliest expiring first (FEFO)
+      const sorted = [...item.stockBatches].sort((a,b) => {
+        return getDaysUntilExp(a.exp) - getDaysUntilExp(b.exp);
+      });
+
+      const optionsContainer = document.getElementById("select-lot-options");
+      optionsContainer.innerHTML = sorted.map((batch, idx) => {
+        const days = getDaysUntilExp(batch.exp);
+        const isFirst = idx === 0;
+
+        return `
+          <label class="flex items-center justify-between p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition ${isFirst ? 'border-teal-500 bg-teal-50/50 ring-1 ring-teal-400' : 'border-slate-200'}">
+            <div class="flex items-center space-x-3">
+              <input type="radio" name="stock_lot_radio" value="${batch.id}" ${isFirst ? 'checked' : ''} class="w-4 h-4 text-teal-600 focus:ring-teal-500">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <span class="font-mono font-bold text-slate-800 text-xs">Lot: ${batch.lot || 'N/A'}</span>
+                  ${isFirst ? '<span class="text-[10px] bg-teal-700 text-white font-semibold px-2 py-0.5 rounded-full">⚡ Expires First (Recommended)</span>' : ''}
+                </div>
+                <div class="text-xs text-slate-500 mt-0.5">
+                  Expires: <strong class="${days <= 60 ? 'text-rose-600' : 'text-slate-700'}">${batch.exp || 'N/A'}</strong> 
+                  ${batch.exp ? `(${days} days)` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-sm font-bold text-slate-800">${batch.qty}</span>
+              <span class="text-[10px] text-slate-500 block">in stock</span>
+            </div>
+          </label>
+        `;
+      }).join("");
+
+      openModal("select-lot-modal");
+    }
+
+    function confirmOpenSpecificLot() {
+      const selected = document.querySelector('input[name="stock_lot_radio"]:checked');
+      if (!selected || !pendingOpenItemId) return;
+
+      const item = reagents.find(r => r.id === pendingOpenItemId);
+      if (!item) return;
+
+      executeOpenBatch(item, selected.value);
+      closeModal("select-lot-modal");
+    }
+
+    function executeOpenBatch(item, batchId) {
+      const batch = item.stockBatches.find(b => b.id === batchId);
+      if (!batch || batch.qty <= 0) return;
+
+      // 1. Decrement stock batch
+      batch.qty -= 1;
+      if (batch.qty <= 0) {
+        item.stockBatches = item.stockBatches.filter(b => b.id !== batchId);
+      }
+
+      // 2. Add to In-Use batch with exact lot and expiration!
+      if (!item.inUseBatches) item.inUseBatches = [];
+      const existingInUse = item.inUseBatches.find(b => b.lot === batch.lot && b.exp === batch.exp);
+      if (existingInUse) {
+        existingInUse.qty += 1;
+      } else {
+        item.inUseBatches.push({
+          id: 'iu_' + Date.now(),
+          qty: 1,
+          lot: batch.lot,
+          exp: batch.exp
+        });
       }
 
       saveData();
-      showToast(`Opened 1 bottle of "${item.name}". Stock is now ${item.stock}. Total: ${total}.`);
+      showToast(`Opened 1 bottle (Lot: ${batch.lot || 'N/A'}). Remaining Stock: ${item.stock}. Total: ${item.stock + item.inUse}.`);
     }
 
-    // Discard / Finish In-Use Bottle
+    // ----------------------------------------------------
+    // FINISH IN-USE BOTTLE
+    // ----------------------------------------------------
     function finishInUse(id) {
       const item = reagents.find(r => r.id === id);
-      if (!item) return;
-
-      if (item.inUse <= 0) {
+      if (!item || !item.inUseBatches || item.inUseBatches.length === 0 || item.inUse <= 0) {
         showToast(`No bottles currently marked 'In Use' to finish!`, true);
         return;
       }
 
-      // Check if tech wants to replace immediately or just discard
-      if (item.stock > 0 && confirm(`Discard empty bottle of "${item.name}"?\n\nYou have ${item.stock} in stock. Pull a replacement from stock now?`)) {
-        item.inUse -= 1; // finished previous
-        item.stock -= 1; // took replacement
-        item.inUse += 1; // new one in use
-        const total = item.stock + item.inUse;
-        if (total <= item.min || item.stock === 0) {
-          item.needsOrder = true;
+      // Finish the first in-use batch
+      const targetBatch = item.inUseBatches[0];
+
+      if (item.stock > 0 && confirm(`Discard empty bottle of "${item.name}" (Lot: ${targetBatch.lot || 'N/A'})?\n\nYou have ${item.stock} in stock. Pull a fresh replacement bottle now?`)) {
+        // Discard active
+        targetBatch.qty -= 1;
+        if (targetBatch.qty <= 0) {
+          item.inUseBatches.shift();
         }
-        saveData();
-        showToast(`Replaced in-use bottle. Remaining Stock: ${item.stock}. Total: ${total}.`);
+        // Open next from stock
+        openFromStock(id);
       } else {
-        item.inUse -= 1;
-        const total = item.stock + item.inUse;
-        if (total <= item.min || item.stock === 0) {
-          item.needsOrder = true;
+        targetBatch.qty -= 1;
+        if (targetBatch.qty <= 0) {
+          item.inUseBatches.shift();
         }
         saveData();
-        showToast(`Finished bottle. In Use is now ${item.inUse}. Total: ${total}.`);
+        showToast(`Finished bottle. In Use is now ${item.inUse}. Total: ${item.stock + item.inUse}.`);
       }
     }
 
-    // Adjust Stock Directly (+ / -)
-    function adjustStock(id, delta) {
+    // ----------------------------------------------------
+    // RECEIVE SHIPMENT / RESTOCK WITH SPECIFIC LOT
+    // ----------------------------------------------------
+    function openRestockModal(id) {
       const item = reagents.find(r => r.id === id);
       if (!item) return;
 
-      const newStock = item.stock + delta;
-      if (newStock < 0) return;
+      document.getElementById("restock-item-id").value = item.id;
+      document.getElementById("restock-item-name").innerText = `${item.name} (${item.ref})`;
+      document.getElementById("restock-qty").value = 1;
+      document.getElementById("restock-lot").value = "";
+      document.getElementById("restock-exp").value = "";
+      openModal("restock-modal");
+    }
 
-      item.stock = newStock;
-      const total = item.stock + item.inUse;
-      if (total <= item.min) {
-        item.needsOrder = true;
-      } else if (total > item.min && item.stock > 0) {
-        // If they restocked above min, can uncheck needs order automatically
+    function changeRestockCount(delta) {
+      const input = document.getElementById("restock-qty");
+      let val = parseInt(input.value) || 1;
+      val += delta;
+      if (val < 1) val = 1;
+      input.value = val;
+    }
+
+    function setRestockCount(num) {
+      document.getElementById("restock-qty").value = num;
+    }
+
+    function confirmRestock() {
+      const id = document.getElementById("restock-item-id").value;
+      const qty = parseInt(document.getElementById("restock-qty").value) || 1;
+      const lot = document.getElementById("restock-lot").value.trim();
+      const exp = document.getElementById("restock-exp").value;
+
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      if (!item.stockBatches) item.stockBatches = [];
+
+      // Check if lot already exists in stock
+      const existing = item.stockBatches.find(b => b.lot === lot && b.exp === exp);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        item.stockBatches.push({
+          id: 'stk_' + Date.now(),
+          qty: qty,
+          lot: lot,
+          exp: exp
+        });
+      }
+
+      // Check if low stock order fulfilled
+      const total = item.stock + item.inUse + qty;
+      if (total > item.min) {
         item.needsOrder = false;
       }
 
       saveData();
-      showToast(`Stock updated to ${item.stock} (Total: ${total})`);
+      closeModal("restock-modal");
+      showToast(`Restocked +${qty} bottles (Lot: ${lot || 'N/A'}, Exp: ${exp || 'N/A'}). Stock is now ${item.stock}.`);
     }
 
     // Toggle Order Status Manually
@@ -1489,6 +2153,30 @@
       item.needsOrder = !item.needsOrder;
       saveData();
       showToast(item.needsOrder ? "Marked as Needs Order Placed" : "Removed from Order list");
+    }
+
+    // Adjust Stock Directly (+ / -)
+    function adjustStock(id, delta) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      if (!item.stockBatches) item.stockBatches = [];
+
+      if (delta > 0) {
+        if (item.stockBatches.length > 0) {
+          item.stockBatches[item.stockBatches.length - 1].qty += 1;
+        } else {
+          item.stockBatches.push({ id: 'stk_' + Date.now(), qty: 1, lot: item.lot || '', exp: item.exp || '' });
+        }
+      } else if (delta < 0) {
+        if (item.stockBatches.length > 0) {
+          const last = item.stockBatches[item.stockBatches.length - 1];
+          last.qty -= 1;
+          if (last.qty <= 0) item.stockBatches.pop();
+        }
+      }
+
+      saveData();
     }
 
     // KPI Counters
@@ -1502,8 +2190,10 @@
         if (total <= r.min || r.needsOrder || r.stock === 0) {
           lowStockCount++;
         }
-        const days = getDaysUntilExp(r.exp);
-        if (days <= 60) {
+        // Check all lots for upcoming expiration
+        const allLots = [...(r.inUseBatches || []), ...(r.stockBatches || [])];
+        const hasExpiring = allLots.some(b => getDaysUntilExp(b.exp) <= 60);
+        if (hasExpiring) {
           expiringCount++;
         }
         totalInUse += r.inUse;
@@ -1543,20 +2233,23 @@
       renderInventory();
     }
 
-    // Render Cards / Rows
+    // ----------------------------------------------------
+    // RENDER INVENTORY CARDS WITH MULTI-LOT BREAKDOWN
+    // ----------------------------------------------------
     function renderInventory() {
       const container = document.getElementById("inventory-container");
       const searchQuery = (document.getElementById("search-input").value || "").toLowerCase().trim();
 
       const filtered = reagents.filter(item => {
         const total = item.stock + item.inUse;
-        const days = getDaysUntilExp(item.exp);
+        const allLots = [...(item.inUseBatches || []), ...(item.stockBatches || [])];
+        const hasExpiring = allLots.some(b => getDaysUntilExp(b.exp) <= 60);
 
         // Filter by state
         if (currentFilter === 'LOW_STOCK' && !(total <= item.min || item.needsOrder || item.stock === 0)) {
           return false;
         }
-        if (currentFilter === 'EXPIRING' && days > 60) {
+        if (currentFilter === 'EXPIRING' && !hasExpiring) {
           return false;
         }
 
@@ -1567,7 +2260,8 @@
 
         // Filter by search
         if (searchQuery) {
-          const matchString = `${item.name} ${item.ref} ${item.mfg} ${item.purpose} ${item.lot} ${item.comments}`.toLowerCase();
+          const lotStrings = allLots.map(b => b.lot).join(" ");
+          const matchString = `${item.name} ${item.ref} ${item.mfg} ${item.purpose} ${lotStrings} ${item.comments}`.toLowerCase();
           if (!matchString.includes(searchQuery)) return false;
         }
 
@@ -1589,21 +2283,70 @@
       container.innerHTML = filtered.map(item => {
         const total = item.stock + item.inUse;
         const isLow = total <= item.min || item.stock === 0;
-        const daysExp = getDaysUntilExp(item.exp);
 
-        // Expiry Badge
-        let expBadge = '';
-        if (item.exp) {
-          if (daysExp < 0) {
-            expBadge = `<span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">⚠️ EXPIRED (${item.exp})</span>`;
-          } else if (daysExp <= 30) {
-            expBadge = `<span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">Exp in ${daysExp}d (${item.exp})</span>`;
-          } else if (daysExp <= 60) {
-            expBadge = `<span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Exp: ${item.exp} (${daysExp}d)</span>`;
-          } else {
-            expBadge = `<span class="text-xs text-slate-500">Exp: ${item.exp}</span>`;
-          }
-        }
+        // Render In-Use Lots
+        const inUseLotsHtml = (item.inUseBatches && item.inUseBatches.length > 0)
+          ? item.inUseBatches.map(b => {
+              const days = getDaysUntilExp(b.exp);
+              let expColor = 'text-slate-600';
+              if (days < 0) expColor = 'text-rose-700 font-bold';
+              else if (days <= 30) expColor = 'text-rose-600 font-semibold';
+              else if (days <= 60) expColor = 'text-amber-600 font-medium';
+
+              const fill = b.fill || 'FULL';
+              let fillBadge = '';
+              if (fill === 'FULL') fillBadge = '<span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-emerald-200" title="Click to change fill level">~100% Full</span>';
+              else if (fill === 'HALF') fillBadge = '<span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-blue-200" title="Click to change fill level">~50% Left</span>';
+              else if (fill === 'LOW') fillBadge = '<span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-amber-200" title="Click to change fill level">~25% Low</span>';
+              else if (fill === 'CRITICAL') fillBadge = '<span class="bg-rose-100 text-rose-800 text-[9px] font-bold px-1.5 py-0.5 rounded cursor-pointer hover:bg-rose-200" title="Click to change fill level">&lt;10% Nearly Empty</span>';
+
+              const willExpireBeforeEmpty = days <= 60 && (fill === 'FULL' || fill === 'HALF');
+
+              return `
+                <div class="py-1.5 border-b border-teal-100 last:border-0 space-y-1">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="flex items-center space-x-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                      <span class="font-bold text-teal-900">${b.qty} bottle${b.qty > 1 ? 's' : ''}</span>
+                      <span class="text-slate-600">Lot: <strong class="font-mono text-slate-800">${b.lot || 'N/A'}</strong></span>
+                      <span onclick="cycleFillLevel('${item.id}', '${b.id}')">${fillBadge}</span>
+                    </span>
+                    <span class="${expColor}">Exp: ${b.exp || 'N/A'} ${b.exp ? `(${days}d)` : ''}</span>
+                  </div>
+                  ${willExpireBeforeEmpty ? `
+                    <div class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 rounded px-1.5 py-0.5 flex items-center justify-between">
+                      <span>⚠️ <strong>Slow Mover:</strong> Has liquid (${fill === 'FULL' ? '100%' : '50%'}), but expires soon! Discard on ${b.exp}.</span>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join("")
+          : `<span class="text-xs text-slate-400 italic">None on bench (empty)</span>`;
+
+        // Render Stock Lots (Sorted by FEFO)
+        const sortedStock = [...(item.stockBatches || [])].sort((a,b) => getDaysUntilExp(a.exp) - getDaysUntilExp(b.exp));
+        
+        const stockLotsHtml = (sortedStock.length > 0)
+          ? sortedStock.map((b, idx) => {
+              const days = getDaysUntilExp(b.exp);
+              const isFirst = idx === 0 && sortedStock.length > 1;
+              let expColor = 'text-slate-600';
+              if (days < 0) expColor = 'text-rose-700 font-bold';
+              else if (days <= 30) expColor = 'text-rose-600 font-semibold';
+              else if (days <= 60) expColor = 'text-amber-600 font-medium';
+
+              return `
+                <div class="flex items-center justify-between text-xs py-1 border-b border-slate-100 last:border-0">
+                  <span class="flex items-center space-x-1.5">
+                    <span class="font-bold text-slate-800">(${b.qty})</span>
+                    <span class="text-slate-600">Lot: <strong class="font-mono text-slate-900">${b.lot || 'N/A'}</strong></span>
+                    ${isFirst ? '<span class="text-[9px] bg-teal-700 text-white font-bold px-1.5 py-0.2 rounded">⚡ Use Next</span>' : ''}
+                  </span>
+                  <span class="${expColor}">Exp: ${b.exp || 'N/A'} ${b.exp ? `(${days}d)` : ''}</span>
+                </div>
+              `;
+            }).join("")
+          : `<span class="text-xs text-rose-500 font-semibold">0 in storage (Out of stock!)</span>`;
 
         return `
           <div class="bg-white rounded-xl border ${isLow ? 'border-rose-300 ring-1 ring-rose-200' : 'border-slate-200'} p-4 shadow-sm hover:shadow-md transition">
@@ -1620,11 +2363,27 @@
 
                 <h3 class="text-base font-bold text-slate-900 leading-snug">${item.name}</h3>
 
-                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 pt-1">
-                  ${item.lot ? `<span><strong>Lot:</strong> <span class="font-mono">${item.lot}</span></span>` : ''}
-                  ${expBadge}
-                  ${item.comments ? `<span class="text-slate-500 italic max-w-md truncate" title="${item.comments}">Note: ${item.comments}</span>` : ''}
+                <!-- MULTI-LOT DETAIL BOX -->
+                <div class="mt-2.5 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs bg-slate-50/80 p-2.5 rounded-lg border border-slate-200">
+                  
+                  <!-- In-Use Specific Lot -->
+                  <div class="border-r border-slate-200/80 pr-2">
+                    <span class="text-[10px] uppercase font-bold text-teal-800 tracking-wider flex items-center mb-1">
+                      <i data-lucide="beaker" class="w-3 h-3 mr-1 text-teal-600"></i> Active In-Use (Bench)
+                    </span>
+                    ${inUseLotsHtml}
+                  </div>
+
+                  <!-- Stock Specific Lots -->
+                  <div class="pl-1">
+                    <span class="text-[10px] uppercase font-bold text-slate-600 tracking-wider flex items-center mb-1">
+                      <i data-lucide="boxes" class="w-3 h-3 mr-1 text-slate-500"></i> Sealed Stock (Storage)
+                    </span>
+                    ${stockLotsHtml}
+                  </div>
+
                 </div>
+
               </div>
 
               <!-- MIDDLE: Quantity Counters (Stock & In Use) -->
@@ -1632,7 +2391,7 @@
                 
                 <!-- Stock (Unopened) -->
                 <div class="text-center px-2">
-                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Stock (Sealed)</span>
+                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Stock</span>
                   <div class="flex items-center justify-center space-x-1.5 mt-0.5">
                     <button onclick="adjustStock('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-slate-300 font-bold text-xs text-slate-700">-</button>
                     <span class="text-xl font-bold ${item.stock === 0 ? 'text-rose-600' : 'text-slate-800'} px-1.5">${item.stock}</span>
@@ -1644,7 +2403,7 @@
 
                 <!-- In Use (Open) -->
                 <div class="text-center px-2">
-                  <span class="text-[10px] uppercase font-bold text-teal-700 tracking-wider block">In-Use (Open)</span>
+                  <span class="text-[10px] uppercase font-bold text-teal-700 tracking-wider block">In-Use</span>
                   <span class="text-xl font-bold text-teal-800 block mt-0.5">${item.inUse}</span>
                 </div>
 
@@ -1686,7 +2445,7 @@
                 <button 
                   onclick="openRestockModal('${item.id}')" 
                   class="bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-medium px-2.5 py-2 rounded-lg text-xs flex items-center transition"
-                  title="Receive new shipment bottles"
+                  title="Receive new shipment bottles with specific lot"
                 >
                   <i data-lucide="package-plus" class="w-3.5 h-3.5 mr-1"></i> Receive
                 </button>
@@ -1719,75 +2478,14 @@
       lucide.createIcons();
     }
 
-    // Restock Modal Handlers
-    function openRestockModal(id) {
-      const item = reagents.find(r => r.id === id);
-      if (!item) return;
-
-      document.getElementById("restock-item-id").value = item.id;
-      document.getElementById("restock-item-name").innerText = `${item.name} (${item.ref})`;
-      document.getElementById("restock-qty").value = 1;
-      document.getElementById("restock-lot").value = "";
-      document.getElementById("restock-exp").value = "";
-      openModal("restock-modal");
-    }
-
-    function changeRestockCount(delta) {
-      const input = document.getElementById("restock-qty");
-      let val = parseInt(input.value) || 1;
-      val += delta;
-      if (val < 1) val = 1;
-      input.value = val;
-    }
-
-    function setRestockCount(num) {
-      document.getElementById("restock-qty").value = num;
-    }
-
-    function confirmRestock() {
-      const id = document.getElementById("restock-item-id").value;
-      const qty = parseInt(document.getElementById("restock-qty").value) || 1;
-      const lot = document.getElementById("restock-lot").value.trim();
-      const exp = document.getElementById("restock-exp").value;
-
-      const item = reagents.find(r => r.id === id);
-      if (!item) return;
-
-      item.stock += qty;
-      if (lot) item.lot = lot;
-      if (exp) item.exp = exp;
-
-      // Update comments if new lot/exp provided
-      if (lot || exp) {
-        item.comments = `Restocked (+${qty}) on ${new Date().toLocaleDateString()}: Lot ${lot || 'N/A'}, Exp ${exp || 'N/A'}\n${item.comments || ''}`.trim();
-      }
-
-      // Check if order fulfilled
-      const total = item.stock + item.inUse;
-      if (total > item.min && item.stock > 0) {
-        item.needsOrder = false;
-      }
-
-      saveData();
-      closeModal("restock-modal");
-      showToast(`Restocked +${qty} bottles of "${item.name}". Current Stock: ${item.stock}. Total: ${total}.`);
-    }
-
-    // Modal Helpers
-    function openModal(id) {
-      document.getElementById(id).classList.remove("hidden");
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.add("hidden");
-    }
-
-    // Add / Edit Modal Handlers
+    // ----------------------------------------------------
+    // EDIT REAGENT MODAL
+    // ----------------------------------------------------
     function openEditModal(id) {
       const item = reagents.find(r => r.id === id);
       if (!item) return;
 
-      document.getElementById("modal-title").innerText = "Edit Reagent";
+      document.getElementById("modal-title").innerText = "Edit Reagent & Lots";
       document.getElementById("form-id").value = item.id;
       document.getElementById("form-name").value = item.name;
       document.getElementById("form-ref").value = item.ref || "";
@@ -1823,17 +2521,15 @@
       };
 
       if (editId) {
-        // Edit existing
         const item = reagents.find(r => r.id === editId);
         Object.assign(item, data);
-        const total = item.stock + item.inUse;
-        if (total <= item.min || item.stock === 0) item.needsOrder = true;
         showToast("Reagent updated successfully!");
       } else {
-        // Add new
         const newItem = {
           id: Date.now().toString(),
           ...data,
+          inUseBatches: data.inUse > 0 ? [{ id: 'iu_' + Date.now(), qty: data.inUse, lot: data.lot, exp: data.exp }] : [],
+          stockBatches: data.stock > 0 ? [{ id: 'stk_' + Date.now(), qty: data.stock, lot: data.lot, exp: data.exp }] : [],
           needsOrder: (data.stock + data.inUse) <= data.min || data.stock === 0
         };
         reagents.unshift(newItem);
@@ -1846,7 +2542,9 @@
       document.getElementById("form-id").value = "";
     }
 
-    // Bi-Weekly Audit Print Generation
+    // ----------------------------------------------------
+    // BI-WEEKLY AUDIT PRINT GENERATION
+    // ----------------------------------------------------
     function triggerPrintAudit() {
       const tbody = document.getElementById("audit-table-body");
       const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
@@ -1857,6 +2555,20 @@
       tbody.innerHTML = reagents.map(item => {
         const total = item.stock + item.inUse;
         const needsOrder = item.needsOrder || total <= item.min || item.stock === 0;
+
+        // Build formatted comment from actual batches
+        let lotComment = '';
+        if (item.inUseBatches && item.inUseBatches.length > 0) {
+          const inUseStr = item.inUseBatches.map(b => `Exp: ${b.exp || 'N/A'} Lot: ${b.lot || 'N/A'}`).join("; ");
+          lotComment += `In Use - ${inUseStr}\n`;
+        }
+        if (item.stockBatches && item.stockBatches.length > 0) {
+          const stockStr = item.stockBatches.map(b => `(${b.qty}) Exp: ${b.exp || 'N/A'} Lot: ${b.lot || 'N/A'}`).join("\n         ");
+          lotComment += `Stock -  ${stockStr}`;
+        }
+        if (!lotComment.trim() && item.comments) {
+          lotComment = item.comments;
+        }
 
         return `
           <tr>
@@ -1873,9 +2585,7 @@
             </td>
             <td class="border border-slate-300 p-1 text-center font-bold text-slate-800">[ ✓ ]</td>
             <td class="border border-slate-300 p-1 text-center font-bold text-slate-800">[ ✓ ]</td>
-            <td class="border border-slate-300 p-1">
-              ${item.comments ? item.comments : (item.exp ? `Exp: ${item.exp} Lot: ${item.lot}` : '')}
-            </td>
+            <td class="border border-slate-300 p-1 font-mono text-[10px] whitespace-pre-line">${lotComment}</td>
             <td class="border border-slate-300 p-1 text-center font-bold ${needsOrder ? 'text-red-700 bg-red-50' : ''}">
               ${needsOrder ? '✓ ORDER' : ''}
             </td>
@@ -1886,25 +2596,32 @@
       window.print();
     }
 
-    // Export to CSV
+    // ----------------------------------------------------
+    // EXPORT TO CSV
+    // ----------------------------------------------------
     function exportCSV() {
-      const headers = ["Reference #", "Manufacturer", "Item Name", "Test Purpose", "RTU", "MIN QTY", "Stock", "In Use", "Total QTY", "Lot #", "Expiration Date", "Needs Order Placed", "Comments"];
+      const headers = ["Reference #", "Manufacturer", "Item Name", "Test Purpose", "RTU", "MIN QTY", "Stock", "In Use", "Total QTY", "In-Use Lots", "Stock Lots", "Needs Order Placed", "Comments"];
       
-      const rows = reagents.map(r => [
-        `"${(r.ref || '').replace(/"/g, '""')}"`,
-        `"${(r.mfg || '').replace(/"/g, '""')}"`,
-        `"${(r.name || '').replace(/"/g, '""')}"`,
-        `"${(r.purpose || '').replace(/"/g, '""')}"`,
-        `"${r.rtu || ''}"`,
-        r.min,
-        r.stock,
-        r.inUse,
-        r.stock + r.inUse,
-        `"${r.lot || ''}"`,
-        `"${r.exp || ''}"`,
-        r.needsOrder ? "YES" : "NO",
-        `"${(r.comments || '').replace(/"/g, '""')}"`
-      ]);
+      const rows = reagents.map(r => {
+        const inUseLots = (r.inUseBatches || []).map(b => `(${b.qty}) Lot:${b.lot} Exp:${b.exp}`).join(" | ");
+        const stockLots = (r.stockBatches || []).map(b => `(${b.qty}) Lot:${b.lot} Exp:${b.exp}`).join(" | ");
+
+        return [
+          `"${(r.ref || '').replace(/"/g, '""')}"`,
+          `"${(r.mfg || '').replace(/"/g, '""')}"`,
+          `"${(r.name || '').replace(/"/g, '""')}"`,
+          `"${(r.purpose || '').replace(/"/g, '""')}"`,
+          `"${r.rtu || ''}"`,
+          r.min,
+          r.stock,
+          r.inUse,
+          r.stock + r.inUse,
+          `"${inUseLots}"`,
+          `"${stockLots}"`,
+          r.needsOrder ? "YES" : "NO",
+          `"${(r.comments || '').replace(/"/g, '""')}"`
+        ];
+      });
 
       const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const encodedUri = encodeURI(csvContent);
@@ -1935,7 +2652,30 @@
       }, 3500);
     }
 
-    // Init
+    // Fallback data if JSON fetch fails
+    function getFallbackData() {
+      return [
+        {
+          id: "6",
+          ref: "AHP0650 (Kit # KTRMPPT)",
+          mfg: "StatLab / American MasterTech",
+          name: "5% Phosphotunstic Acid (Pentachrome Stain Kit - Russell Movat)",
+          purpose: "Special Staining: Movat",
+          rtu: "RTU",
+          min: 2,
+          stock: 4,
+          inUse: 1,
+          needsOrder: false,
+          inUseBatches: [{ id: "iu_1", qty: 1, lot: "261001", exp: "2027-07-31" }],
+          stockBatches: [
+            { id: "stk_1", qty: 2, lot: "261001", exp: "2027-07-31" },
+            { id: "stk_2", qty: 2, lot: "249224", exp: "2027-03-31" }
+          ]
+        }
+      ];
+    }
+
+    // Initialize
     loadData();
   </script>
 </body>

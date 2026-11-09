@@ -50,6 +50,32 @@ In histology, opened reagents age differently than sealed bottles in the cabinet
 
 ---
 
+## 🏷️ 3. Multi-Lot Batch Tracking (Her Exact Example)
+
+In histology, a single reagent often has bottles from **multiple different lots** in storage at the same time:
+
+```
+BENCH (IN-USE):
+  • 1 bottle  — Lot: 261001 (Exp: 7/31/2027)
+
+STORAGE (SEALED STOCK):
+  • (2) bottles — Lot: 249224 (Exp: 3/31/2027) ◄── [⚡ Use Next: Expires First!]
+  • (2) bottles — Lot: 261001 (Exp: 7/31/2027)
+```
+
+### 1. Opening a Bottle with Multiple Lots:
+* When she clicks **`⚡ Open New Bottle`** on an item with multiple lots, the app displays a modal asking:
+  * *"Which lot are you opening?"*
+  * It automatically highlights and pre-selects the lot that **expires first (FEFO: First-Expired, First-Out)** to keep the lab compliant with CAP/CLIA regulations.
+* 1 bottle is deducted from that specific stock lot and moved to the bench with that exact Lot # and expiration date.
+
+### 2. Receiving New Lots:
+* When a new box arrives, click **`📦 Receive`**.
+* Enter how many bottles, type the new **Lot #**, and choose the **Expiration Date**.
+* The new lot is added to that reagent’s stock breakdown.
+
+---
+
 ## 🛠️ 4. Everyday Bench Actions (Quick Cheat-Sheet)
 
 ```

@@ -1,5 +1,8 @@
 node_modules/
 .DS_Store
 *.log
-parse.js
+add_fill_level.js
+embed_lots.js
+parse_lots.js
 update_html.js
+parse.js

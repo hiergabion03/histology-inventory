@@ -1,0 +1,1375 @@
+[
+  {
+    "id": "1",
+    "ref": "KC4172 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Alcian Blue Solution (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 4,
+    "inUse": 1,
+    "lot": "255378",
+    "exp": "2026-09-30",
+    "comments": "Exp: 9/30/2026 Lot: 255378",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688449_jkk1",
+        "qty": 1,
+        "lot": "255378",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688449_nj4n",
+        "qty": 4,
+        "lot": "255378",
+        "exp": "2026-09-30"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "ref": "KC4112 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "10% Alcoholic Hematoxylin (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "232007",
+    "exp": "2026-10-31",
+    "comments": "In Use - Exp: 10/31/2026 Lot 232007\nStock -  Exp: 1/31/2027 Lot 240264",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688452_p7ze",
+        "qty": 1,
+        "lot": "232007",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_bmhq",
+        "qty": 1,
+        "lot": "240264",
+        "exp": "2027-01-31"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "ref": "AHF0143 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "10% Ferric Chloride (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "241821",
+    "exp": "2026-11-30",
+    "comments": "Exp: 11/30/2026 Lot: 241821",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_07d8",
+        "qty": 1,
+        "lot": "241821",
+        "exp": "2026-11-30"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "4",
+    "ref": "KC4142 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "2% Ferric Chloride (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "247858",
+    "exp": "2027-01-31",
+    "comments": "Exp: 1/31/2027 Lot 247858",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_vpss",
+        "qty": 1,
+        "lot": "247858",
+        "exp": "2027-01-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_qdu0",
+        "qty": 1,
+        "lot": "247858",
+        "exp": "2027-01-31"
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "ref": "SSAHA04 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Acetic Acid (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "245560",
+    "exp": "2026-12-31",
+    "comments": "Exp: 12/31/2026 Lot 245560",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_nkg0",
+        "qty": 1,
+        "lot": "245560",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "6",
+    "ref": "AHP0650 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "5% Phosphotunstic Acid (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 4,
+    "inUse": 1,
+    "lot": "261001",
+    "exp": "2027-07-31",
+    "comments": "In Use - Exp: 7/31/2027 Lot 261001\nStock -  (2) Exp: 7/31/2027 Lot 261001\n               (2) Exp: 3/31/2027 Lot 249224",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_1i8z",
+        "qty": 1,
+        "lot": "261001",
+        "exp": "2027-07-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_5fsy",
+        "qty": 2,
+        "lot": "261001",
+        "exp": "2027-07-31"
+      },
+      {
+        "id": "stk_1794205688453_3a5n",
+        "qty": 2,
+        "lot": "249224",
+        "exp": "2027-03-31"
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "ref": "AHS0343 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "5% Sodium Thiosulfate (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 2,
+    "inUse": 0,
+    "lot": "260340",
+    "exp": "2027-06-30",
+    "comments": "Exp: 6/30/2027 Lot 260340",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_e7vj",
+        "qty": 2,
+        "lot": "260340",
+        "exp": "2027-06-30"
+      }
+    ]
+  },
+  {
+    "id": "8",
+    "ref": "STMGRPT (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "May-Grunwald Stock (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "232592",
+    "exp": "2026-12-31",
+    "comments": "Exp: 12/31/2026 Lot 232592",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_tso4",
+        "qty": 1,
+        "lot": "232592",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "9",
+    "ref": "STGIEPT (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Giemsa Stock (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "239130",
+    "exp": "2027-03-31",
+    "comments": "Exp: 3/31/2027 Lot 239130",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_oyyn",
+        "qty": 1,
+        "lot": "239130",
+        "exp": "2027-03-31"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "10",
+    "ref": "AHA00188E (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Acid Alcohol (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "242570",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 242570",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_yr8l",
+        "qty": 1,
+        "lot": "242570",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_jqig",
+        "qty": 1,
+        "lot": "242570",
+        "exp": "2027-10-31"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "ref": "SSKC41A (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Alcoholic Safron Solution (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 3,
+    "inUse": 1,
+    "lot": "258054",
+    "exp": "2026-10-31",
+    "comments": "Exp: 10/31/2026 Lot258054",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_7bok",
+        "qty": 1,
+        "lot": "258054",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_413o",
+        "qty": 3,
+        "lot": "258054",
+        "exp": "2026-10-31"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "ref": "1905B",
+    "mfg": "Newcomer Supply",
+    "name": "Alpha Amylase 1%, aqueous",
+    "purpose": "Special Staining: PAS (including Diastase and Fungus)",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "87253",
+    "exp": "2027-07-28",
+    "comments": "Exp: 7/2027 Lot 87253",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_8x9z",
+        "qty": 1,
+        "lot": "87253",
+        "exp": "2027-07-28"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "13",
+    "ref": "1006",
+    "mfg": "Newcomer Supply",
+    "name": "Ammonium Hydroxide 28-30%, ACS NH4OH FW 35.05",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "14",
+    "ref": "s122 -",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Basic Fuchsin 0.5% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "247738",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 247738",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_9rzn",
+        "qty": 1,
+        "lot": "247738",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "15",
+    "ref": "s163D",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Cellosolve (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "264691",
+    "exp": "2027-03-05",
+    "comments": "Exp: 3/5/2027 Lot 264691",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_va5e",
+        "qty": 1,
+        "lot": "264691",
+        "exp": "2027-03-05"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "16",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Alkaline Congo Red Solution (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "251116",
+    "exp": "2027-02-29",
+    "comments": "Exp: 2/29/2027 Lot 251116",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_j7sc",
+        "qty": 1,
+        "lot": "251116",
+        "exp": "2027-02-29"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_ynev",
+        "qty": 1,
+        "lot": "251116",
+        "exp": "2027-02-29"
+      }
+    ]
+  },
+  {
+    "id": "17",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Modified Mayer's Hematoxylin (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "256053",
+    "exp": "2027-04-30",
+    "comments": "Exp 4/30/2027 Lot 256053",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_fqcr",
+        "qty": 1,
+        "lot": "256053",
+        "exp": "2027-04-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_regz",
+        "qty": 1,
+        "lot": "256053",
+        "exp": "2027-04-30"
+      }
+    ]
+  },
+  {
+    "id": "18",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Alkaline Alcohol Solution (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 3,
+    "lot": "251117",
+    "exp": "2027-01-31",
+    "comments": "In Use - Exp: 1/31/2027 Lot 251117\nStock -  (1) Exp: 1/31/2027 Lot 251117\n               (2) Exp: 3/31/2027 Lot 256747",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_ycju",
+        "qty": 3,
+        "lot": "251117",
+        "exp": "2027-01-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_24z3",
+        "qty": 1,
+        "lot": "251117",
+        "exp": "2027-01-31"
+      },
+      {
+        "id": "stk_1794205688453_33hq",
+        "qty": 2,
+        "lot": "256747",
+        "exp": "2027-03-31"
+      }
+    ]
+  },
+  {
+    "id": "19",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "1% Sodium Hydroxide (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "243826",
+    "exp": "2026-12-31",
+    "comments": "In Use - Exp: 12/31/2026 Lot 243826\nStock - Exp: 5/31/2027 Lot 258211",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_pap0",
+        "qty": 1,
+        "lot": "243826",
+        "exp": "2026-12-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_x4su",
+        "qty": 1,
+        "lot": "258211",
+        "exp": "2027-05-31"
+      }
+    ]
+  },
+  {
+    "id": "20",
+    "ref": "KC41B2 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Crocein Scarlet Acid Fuchsin (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 6,
+    "inUse": 1,
+    "lot": "248674",
+    "exp": "2027-05-31",
+    "comments": "In Use - Exp: 5/31/2027 Lot 248674\nStock - Exp: 9/30/3037 Lot 261093",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_d3f8",
+        "qty": 1,
+        "lot": "248674",
+        "exp": "2027-05-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_mq0c",
+        "qty": 6,
+        "lot": "261093",
+        "exp": "3037-09-30"
+      }
+    ]
+  },
+  {
+    "id": "21",
+    "ref": "s167D",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Cystal Violet 1% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 2,
+    "lot": "237377",
+    "exp": "2026-08-31",
+    "comments": "In Use - Exp: 8/31/2026 Lot 237377\nStock -  (1) Exp: 8/31/2026 Lot 237377\n               (1) Exp: 3/31/2027 Lot 256103",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_5gdy",
+        "qty": 2,
+        "lot": "237377",
+        "exp": "2026-08-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_tktr",
+        "qty": 1,
+        "lot": "237377",
+        "exp": "2026-08-31"
+      },
+      {
+        "id": "stk_1794205688453_tcwa",
+        "qty": 1,
+        "lot": "256103",
+        "exp": "2027-03-31"
+      }
+    ]
+  },
+  {
+    "id": "22",
+    "ref": "s189",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Gallego's Differentiating (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 2,
+    "lot": "229157",
+    "exp": "2027-05-31",
+    "comments": "In Use - Exp: 5/31/2027 Lot 229157\nStock -  (1) Exp: 12/31/2027 Lot 246128\n               (1) Exp: 10/31/2027 Lot 241748",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_psaa",
+        "qty": 2,
+        "lot": "229157",
+        "exp": "2027-05-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_0xrq",
+        "qty": 1,
+        "lot": "246128",
+        "exp": "2027-12-31"
+      },
+      {
+        "id": "stk_1794205688453_xa7q",
+        "qty": 1,
+        "lot": "241748",
+        "exp": "2027-10-31"
+      }
+    ]
+  },
+  {
+    "id": "23",
+    "ref": "BUP1057",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphate Buffer 6.8pH",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "247833",
+    "exp": "2026-09-30",
+    "comments": "In Use - Exp: 9/30/2026 Lot 247833\nStock - Exp: 4/30/2027 Lot 266990",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_52ue",
+        "qty": 1,
+        "lot": "247833",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_7bqb",
+        "qty": 1,
+        "lot": "266990",
+        "exp": "2027-04-30"
+      }
+    ]
+  },
+  {
+    "id": "24",
+    "ref": "BUP1043 (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphate Buffer pH 6.8 (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "247833",
+    "exp": "2026-09-30",
+    "comments": "Exp: 9/30/2026 lot 247833",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_3ti9",
+        "qty": 1,
+        "lot": "247833",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "25",
+    "ref": "C8551",
+    "mfg": "Cancer Diagnostis",
+    "name": "Glacial Acetic Acid",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "2600809",
+    "exp": "2030-01-18",
+    "comments": "Exp: 1/18/2030 Lot 2600809",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_0o80",
+        "qty": 1,
+        "lot": "2600809",
+        "exp": "2030-01-18"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "26",
+    "ref": "s204",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Gram's Iodine (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "241750",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 241750",
+    "needsOrder": true,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_n9fs",
+        "qty": 1,
+        "lot": "241750",
+        "exp": "2027-10-31"
+      }
+    ],
+    "stockBatches": []
+  },
+  {
+    "id": "27",
+    "ref": "1202 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Hematoxylin Stain, Mayer Modified (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "2526130",
+    "exp": "2026-09-30",
+    "comments": "In Use - Exp: 9/30/2026 Lot 2526130\nStock - Exp: 6/8/2027 Lot 2614735",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_21j8",
+        "qty": 1,
+        "lot": "2526130",
+        "exp": "2026-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_ge66",
+        "qty": 1,
+        "lot": "2614735",
+        "exp": "2027-06-08"
+      }
+    ]
+  },
+  {
+    "id": "28",
+    "ref": "AHH0243 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Hydrochloric Acid",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "254418",
+    "exp": "2027-09-30",
+    "comments": "Exp: 9/30/2027 Lot 254418",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_0bj5",
+        "qty": 1,
+        "lot": "254418",
+        "exp": "2027-09-30"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_1tlk",
+        "qty": 1,
+        "lot": "254418",
+        "exp": "2027-09-30"
+      }
+    ]
+  },
+  {
+    "id": "29",
+    "ref": "AH50443",
+    "mfg": "STAT LAB",
+    "name": "Silver Nitrate Solution 5%",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "241418",
+    "exp": "2026-10-31",
+    "comments": "In Use - Exp: 10/31/2026 Lot 241418\nStock - Exp: 1/31/2027 Lot 266975",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_4h7m",
+        "qty": 1,
+        "lot": "241418",
+        "exp": "2026-10-31"
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_3jb6",
+        "qty": 1,
+        "lot": "266975",
+        "exp": "2027-01-31"
+      }
+    ]
+  },
+  {
+    "id": "30",
+    "ref": "S1895-8OZ",
+    "mfg": "STAT LAB / Poly Scientific R &D",
+    "name": "Sodium Thiosulfate 5% Aqueous",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 1,
+    "inUse": 17,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": false,
+    "inUseBatches": [
+      {
+        "id": "iu_1794205688453_z4zh",
+        "qty": 17,
+        "lot": "",
+        "exp": ""
+      }
+    ],
+    "stockBatches": [
+      {
+        "id": "stk_1794205688453_hqoi",
+        "qty": 1,
+        "lot": "",
+        "exp": ""
+      }
+    ]
+  },
+  {
+    "id": "31",
+    "ref": "11286B",
+    "mfg": "Newcomer Supply",
+    "name": "Gold Chloride 0.2% Aqueous",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "32",
+    "ref": "88023",
+    "mfg": "Epredia",
+    "name": "Methenamine-Borax Capsules cases",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 4,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "33",
+    "ref": "STLGCPT (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Light Green Counterstain (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "34",
+    "ref": "STACFPT (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Advanced Carbol Fuchsin™ (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "35",
+    "ref": "STNFR100 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Nuclear Fast Red Stain",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "36",
+    "ref": "s1861",
+    "mfg": "Poly Scientific R&D",
+    "name": "Periodic Acid 1% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 5,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "37",
+    "ref": "HXWEAPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Weigert's Hematoxylin A (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "38",
+    "ref": "HXWHEBPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Weigert's Hematoxylin B (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "39",
+    "ref": "FXBOUPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Bouin's Fluid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "40",
+    "ref": "AHB0443 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Biebrich Scarlet - Acid Fuchsin (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "41",
+    "ref": "AHP0543 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphomolybdic / Phosphotungstic Acid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "42",
+    "ref": "AHA0543 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Aniline Blue Stain (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "43",
+    "ref": "AHA0343 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Acetic Acid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "44",
+    "ref": "AHP0443 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Potassium Ferrocyanide",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "45",
+    "ref": "10531 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Rhodanin Stock Stain 0.2% Alcoholic (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "46",
+    "ref": "33700",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Schiff Reagent",
+    "purpose": "Special Staining: PAS (including Diastase and Fungus)",
+    "rtu": "RTU",
+    "min": 4,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "47",
+    "ref": "13824 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Sodium Borate 0.5%, Aqueous (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "48",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'B: Oxalic Acid 1%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "49",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n A: Potassium Permanganate 1 %, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "50",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n C: Ferric Ammonium Sulfate 2.5%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "51",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n D: Silver Nitrate 10%, aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "52",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n E: Ammonium Hydroxide 28 -30%, ACS (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "53",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n F: Sodium Hydroxide 3%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "54",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n G: Formalin 10%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "55",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n H: Gold Choride 0.2%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "56",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n I: Sodium Thiosulfate 5%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "57",
+    "ref": "s284",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Tartrazine 1.5% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "58",
+    "ref": "STUIOP (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Universal Iodine (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "59",
+    "ref": "s1861-16oz",
+    "mfg": "Poly Scientific / STAT LAB",
+    "name": "Periodic Acid 1% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 6,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  },
+  {
+    "id": "60",
+    "ref": "s232-8oz",
+    "mfg": "Poly Scientific",
+    "name": "Fast green Substitute for Light Green 0.2% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true,
+    "inUseBatches": [],
+    "stockBatches": []
+  }
+]
