@@ -167,11 +167,24 @@ Every two weeks when your routine inventory audit is due:
 
 ---
 
-## 💾 7. Data Safety & Backups
+## 💾 7. Excel & CSV Import / Export
 
-* **Automatic Saving:** Everything you do saves instantly in your browser. Even if you restart your computer or close the tab, your data stays intact.
-* **Excel Backup:** Click **`💾 Export`** in the top bar anytime. It downloads a clean `.csv` spreadsheet file containing all your reagents, counts, and lot numbers that you can open in Excel or email to your manager.
-* **Original Reset:** If you ever want to reset back to the starting spreadsheet data, click the **Reset (`↺`)** button.
+You can now freely move data between Excel and the app with zero manual re-typing:
+
+### 📥 1. Uploading / Importing an Excel or CSV File
+* Click **`📥 Import`** in the top navigation bar.
+* Drag and drop your `.xlsx`, `.xls`, or `.csv` spreadsheet file (or click to browse).
+* Choose your import action:
+  * **Replace Current Inventory:** Wipes the current list and replaces it with the uploaded file (ideal when syncing with a master departmental inventory).
+  * **Merge & Update:** Updates counts and lot numbers for existing items, and automatically appends any new reagents found in the file.
+* The app automatically shows a preview of how many reagents were found. Click **"Import Reagents"** to apply it instantly!
+* *Smart Recognition:* The app automatically recognizes both the official **Histology 205 (v1.0)** lab spreadsheet format and standard CSV exports.
+
+### 📤 2. Exporting / Downloading Files
+* Click **`📤 Export`** in the top navigation bar to choose your format:
+  * **Download Excel Spreadsheet (.xlsx):** Generates a clean, native Excel workbook with auto-sized column widths, ready to email to your supervisor or purchasing department.
+  * **Download CSV File (.csv):** Standard spreadsheet format that opens in Excel, Numbers, or Google Sheets.
+  * **Download JSON Backup (.json):** Complete technical backup containing all multi-lot structures.
 
 ---
 

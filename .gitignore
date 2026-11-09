@@ -9,3 +9,5 @@ parse.js
 update_fill_ui.js
 fix_overflow.js
 apply_simple_percent.js
+test_import_parser.js
+inject_import_export.js

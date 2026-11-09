@@ -6,6 +6,8 @@
   <title>Histology 205 Reagent Inventory Manager</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS (Excel .xlsx / .csv parser & generator) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -57,7 +59,10 @@
         <button onclick="triggerPrintAudit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3.5 py-2 rounded-lg flex items-center shadow-sm transition">
           <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Bi-Weekly Audit Print
         </button>
-        <button onclick="exportCSV()" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="Export to Excel/CSV">
+        <button onclick="openModal('import-modal')" class="bg-teal-600 hover:bg-teal-500 text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="Import from Excel or CSV file">
+          <i data-lucide="upload" class="w-4 h-4 mr-1.5"></i> Import
+        </button>
+        <button onclick="openModal('export-modal')" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="Export to Excel, CSV, or Backup">
           <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Export
         </button>
         <button onclick="resetToSampleData()" class="text-teal-200 hover:text-white p-2 rounded-lg transition" title="Reset to Original Excel Data">
@@ -470,6 +475,135 @@
 
       <div class="p-4 border-t bg-slate-50 flex justify-end">
         <button onclick="closeModal('help-modal')" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-medium rounded-lg text-xs">Got it, thanks!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: IMPORT EXCEL / CSV -->
+  <div id="import-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-teal-100 text-teal-800 rounded-lg">
+            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Import Excel / CSV File</h3>
+            <p class="text-xs text-slate-500">Upload your lab's inventory spreadsheet</p>
+          </div>
+        </div>
+        <button onclick="closeModal('import-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-sm">
+        <!-- Dropzone / File Picker -->
+        <div class="border-2 border-dashed border-teal-300 rounded-xl p-5 text-center bg-teal-50/40 hover:bg-teal-50 transition cursor-pointer" onclick="document.getElementById('import-file-input').click()">
+          <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-teal-600 mb-2"></i>
+          <p class="font-bold text-slate-800 text-sm">Click to select or drop Excel / CSV file</p>
+          <p class="text-xs text-slate-500 mt-0.5">Supports <strong>.xlsx, .xls, .csv</strong></p>
+          <input type="file" id="import-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileSelect(event)">
+        </div>
+
+        <!-- Import Mode Selection -->
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 text-xs">
+          <label class="font-bold text-slate-700 block">Import Action:</label>
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" name="import_mode" value="replace" checked class="text-teal-600 focus:ring-teal-500">
+              <span class="font-medium text-slate-800">Replace current inventory</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" name="import_mode" value="merge" class="text-teal-600 focus:ring-teal-500">
+              <span class="font-medium text-slate-800">Merge & update</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- File Preview Area -->
+        <div id="import-preview-box" class="hidden bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs space-y-1.5">
+          <div class="flex items-center justify-between text-slate-800 font-bold">
+            <span id="import-file-name" class="flex items-center"><i data-lucide="file-check" class="w-4 h-4 mr-1 text-emerald-600"></i> File ready</span>
+            <span id="import-row-count" class="bg-teal-100 text-teal-900 px-2 py-0.5 rounded font-mono">0 items</span>
+          </div>
+          <p id="import-sample-text" class="text-slate-500 italic truncate"></p>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('import-modal')" class="px-3.5 py-1.5 border rounded-lg text-slate-600 hover:bg-slate-50 text-xs">Cancel</button>
+          <button type="button" id="confirm-import-btn" onclick="executeImport()" disabled class="px-4 py-1.5 bg-teal-700 hover:bg-teal-600 text-white font-medium rounded-lg text-xs disabled:opacity-40 disabled:cursor-not-allowed">
+            Import Reagents
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EXPORT INVENTORY -->
+  <div id="export-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-slate-100 text-slate-800 rounded-lg">
+            <i data-lucide="download" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-800">Export Inventory Data</h3>
+            <p class="text-xs text-slate-500">Download your inventory for Excel or backup</p>
+          </div>
+        </div>
+        <button onclick="closeModal('export-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Excel .xlsx option -->
+        <button onclick="exportExcel()" class="w-full flex items-center justify-between p-3.5 border border-slate-200 rounded-xl hover:bg-emerald-50 hover:border-emerald-300 transition text-left group">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-emerald-100 text-emerald-800 rounded-lg group-hover:bg-emerald-200">
+              <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Download Excel Spreadsheet (.xlsx)</p>
+              <p class="text-xs text-slate-500">Native Excel file with auto-sized columns & headers</p>
+            </div>
+          </div>
+          <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-emerald-700"></i>
+        </button>
+
+        <!-- CSV option -->
+        <button onclick="exportCSV()" class="w-full flex items-center justify-between p-3.5 border border-slate-200 rounded-xl hover:bg-teal-50 hover:border-teal-300 transition text-left group">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-teal-100 text-teal-800 rounded-lg group-hover:bg-teal-200">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Download CSV File (.csv)</p>
+              <p class="text-xs text-slate-500">Standard spreadsheet file compatible with all programs</p>
+            </div>
+          </div>
+          <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-teal-700"></i>
+        </button>
+
+        <!-- JSON backup option -->
+        <button onclick="exportJSON()" class="w-full flex items-center justify-between p-3.5 border border-slate-200 rounded-xl hover:bg-blue-50 hover:border-blue-300 transition text-left group">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-blue-100 text-blue-800 rounded-lg group-hover:bg-blue-200">
+              <i data-lucide="database" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Download Complete JSON Backup (.json)</p>
+              <p class="text-xs text-slate-500">Exact technical backup containing all multi-lot structures</p>
+            </div>
+          </div>
+          <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-blue-700"></i>
+        </button>
+      </div>
+
+      <div class="flex justify-end pt-3 border-t">
+        <button type="button" onclick="closeModal('export-modal')" class="px-4 py-1.5 border rounded-lg text-slate-600 hover:bg-slate-50 text-xs">Close</button>
       </div>
     </div>
   </div>
@@ -2718,6 +2852,337 @@
           ]
         }
       ];
+    }
+
+
+    // ----------------------------------------------------
+    // IMPORT EXCEL / CSV ENGINE
+    // ----------------------------------------------------
+    let parsedImportData = null;
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const fileName = file.name;
+      const ext = fileName.split('.').pop().toLowerCase();
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          let rows = [];
+          if (ext === 'csv') {
+            // Parse CSV text
+            const text = e.target.result;
+            if (typeof XLSX !== 'undefined') {
+              const workbook = XLSX.read(text, { type: 'string' });
+              const firstSheet = workbook.SheetNames[0];
+              rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: '' });
+            } else {
+              rows = parseCSVText(text);
+            }
+          } else {
+            // Excel (.xlsx, .xls)
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.SheetNames[0];
+            rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: '' });
+          }
+
+          if (!rows || rows.length === 0) {
+            showToast("No data rows found in the selected file!", true);
+            return;
+          }
+
+          // Parse rows into reagents data structure
+          parsedImportData = rows.map((r, idx) => parseUploadedRow(r, idx)).filter(r => r !== null);
+
+          if (parsedImportData.length === 0) {
+            showToast("Could not recognize reagent columns in this file!", true);
+            return;
+          }
+
+          // Show preview
+          document.getElementById("import-preview-box").classList.remove("hidden");
+          document.getElementById("import-file-name").innerHTML = `<i data-lucide="file-check" class="w-4 h-4 mr-1 text-emerald-600"></i> ${fileName}`;
+          document.getElementById("import-row-count").innerText = `${parsedImportData.length} items found`;
+          
+          const sampleNames = parsedImportData.slice(0, 3).map(i => i.name).join(", ");
+          document.getElementById("import-sample-text").innerText = `Preview: ${sampleNames}...`;
+          
+          document.getElementById("confirm-import-btn").disabled = false;
+          lucide.createIcons();
+
+        } catch (err) {
+          console.error("Import error:", err);
+          showToast("Error reading spreadsheet: " + err.message, true);
+        }
+      };
+
+      if (ext === 'csv') {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    // Smart Row Parser for both Lab SOP 205 and App Export formats
+    function parseUploadedRow(row, idx) {
+      const normalized = {};
+      for (const k of Object.keys(row)) {
+        normalized[k.trim().toLowerCase()] = row[k];
+      }
+
+      const getCol = (...names) => {
+        for (const name of names) {
+          for (const k of Object.keys(normalized)) {
+            if (k === name.toLowerCase() || k.includes(name.toLowerCase())) {
+              return normalized[k];
+            }
+          }
+        }
+        return '';
+      };
+
+      const name = String(getCol('item name', 'name', 'reagent') || '').trim();
+      if (!name) return null;
+
+      const ref = String(getCol('reference', 'ref #', 'ref', 'catalog') || '').trim();
+      const mfg = String(getCol('manufacturer', 'mfg', 'vendor') || '').trim();
+      const purpose = String(getCol('test purpose', 'purpose', 'item group', 'stain') || 'Special Staining: General').trim();
+      const rtu = String(getCol('rtu or conc', 'rtu', 'type') || 'RTU').trim();
+      const min = parseInt(getCol('min qty', 'min', 'par') || '1') || 1;
+      const comments = String(getCol('comment', 'notes', 'comments') || '').trim();
+      const needsOrderCol = String(getCol('needs order', 'order') || '').trim();
+
+      let stock = 0;
+      let inUse = 0;
+      let inUseBatches = [];
+      let stockBatches = [];
+
+      const inUseLotsStr = String(getCol('in-use lots', 'in use lots') || '');
+      const stockLotsStr = String(getCol('stock lots', 'stock lots') || '');
+
+      if (inUseLotsStr || stockLotsStr) {
+        stock = parseInt(getCol('stock') || '0') || 0;
+        inUse = parseInt(getCol('in use', 'inuse') || '0') || 0;
+
+        if (inUseLotsStr) {
+          inUseLotsStr.split('|').forEach(part => {
+            const qtyMatch = part.match(/\((\d+)\)/);
+            const lotMatch = part.match(/Lot:?\s*([A-Za-z0-9\-]+)/i);
+            const expMatch = part.match(/Exp:?\s*([0-9\-\/]+)/i);
+            const qty = qtyMatch ? parseInt(qtyMatch[1]) : (inUse || 1);
+            inUseBatches.push({
+              id: 'iu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              qty,
+              lot: lotMatch ? lotMatch[1] : '',
+              exp: expMatch ? expMatch[1] : '',
+              fill: 'FULL'
+            });
+          });
+        }
+
+        if (stockLotsStr) {
+          stockLotsStr.split('|').forEach(part => {
+            const qtyMatch = part.match(/\((\d+)\)/);
+            const lotMatch = part.match(/Lot:?\s*([A-Za-z0-9\-]+)/i);
+            const expMatch = part.match(/Exp:?\s*([0-9\-\/]+)/i);
+            const qty = qtyMatch ? parseInt(qtyMatch[1]) : (stock || 1);
+            stockBatches.push({
+              id: 'stk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              qty,
+              lot: lotMatch ? lotMatch[1] : '',
+              exp: expMatch ? expMatch[1] : ''
+            });
+          });
+        }
+      } else {
+        const currentQtyStr = String(getCol('current qty', 'qty', 'quantity') || '');
+        const stockMatch = currentQtyStr.match(/Stock\s*:\s*(\d+)/i);
+        const inUseMatch = currentQtyStr.match(/In\s*Use\s*:\s*(\d+)/i);
+
+        if (stockMatch) stock = parseInt(stockMatch[1]);
+        if (inUseMatch) inUse = parseInt(inUseMatch[1]);
+
+        if (!stockMatch && !inUseMatch) {
+          const directStock = parseInt(getCol('stock') || '');
+          const directInUse = parseInt(getCol('in use', 'inuse') || '');
+          if (!isNaN(directStock)) stock = directStock;
+          if (!isNaN(directInUse)) inUse = directInUse;
+        }
+
+        if (comments.includes('In Use -') || comments.includes('Stock -')) {
+          const parts = comments.split(/Stock\s*[-:]/i);
+          const inUsePart = parts[0] || '';
+          const stockPart = parts[1] || '';
+
+          if (inUse > 0) {
+            const lotMatch = inUsePart.match(/Lot:?\s*([A-Za-z0-9\-]+)/i);
+            const expMatch = inUsePart.match(/Exp:?\s*([0-9\-\/]+)/i);
+            inUseBatches.push({
+              id: 'iu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              qty: inUse,
+              lot: lotMatch ? lotMatch[1] : '',
+              exp: expMatch ? expMatch[1] : '',
+              fill: 'FULL'
+            });
+          }
+
+          if (stockPart) {
+            stockPart.split(/[\r\n]+/).forEach(line => {
+              const trimmed = line.trim();
+              if (!trimmed) return;
+              const qtyMatch = trimmed.match(/\((\d+)\)/);
+              const lotMatch = trimmed.match(/Lot:?\s*([A-Za-z0-9\-]+)/i);
+              const expMatch = trimmed.match(/Exp:?\s*([0-9\-\/]+)/i);
+              const qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
+              stockBatches.push({
+                id: 'stk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                qty,
+                lot: lotMatch ? lotMatch[1] : '',
+                exp: expMatch ? expMatch[1] : ''
+              });
+            });
+          }
+        } else {
+          const lotMatch = comments.match(/Lot:?\s*([A-Za-z0-9\-]+)/i);
+          const expMatch = comments.match(/Exp:?\s*([0-9\-\/]+)/i);
+          const lot = lotMatch ? lotMatch[1] : '';
+          const exp = expMatch ? expMatch[1] : '';
+
+          if (inUse > 0) inUseBatches.push({ id: 'iu_' + Date.now() + '_' + idx, qty: inUse, lot, exp, fill: 'FULL' });
+          if (stock > 0) stockBatches.push({ id: 'stk_' + Date.now() + '_' + idx, qty: stock, lot, exp });
+        }
+      }
+
+      if (inUseBatches.length === 0 && inUse > 0) {
+        inUseBatches.push({ id: 'iu_' + Date.now() + '_' + idx, qty: inUse, lot: '', exp: '', fill: 'FULL' });
+      }
+      if (stockBatches.length === 0 && stock > 0) {
+        stockBatches.push({ id: 'stk_' + Date.now() + '_' + idx, qty: stock, lot: '', exp: '' });
+      }
+
+      const total = stock + inUse;
+      const needsOrder = needsOrderCol.includes('ü') || needsOrderCol.includes('✓') || needsOrderCol.toUpperCase() === 'YES' || total <= min || stock === 0;
+
+      return {
+        id: (idx + 1).toString(),
+        ref,
+        mfg,
+        name,
+        purpose,
+        rtu,
+        min,
+        stock,
+        inUse,
+        lot: inUseBatches[0]?.lot || stockBatches[0]?.lot || '',
+        exp: inUseBatches[0]?.exp || stockBatches[0]?.exp || '',
+        comments,
+        needsOrder,
+        inUseBatches,
+        stockBatches
+      };
+    }
+
+    // Execute the import
+    function executeImport() {
+      if (!parsedImportData || parsedImportData.length === 0) return;
+
+      const mode = document.querySelector('input[name="import_mode"]:checked').value;
+
+      if (mode === 'replace') {
+        reagents = parsedImportData;
+      } else {
+        // Merge mode: update existing by ref or name, add new
+        parsedImportData.forEach(newR => {
+          const existing = reagents.find(r => (r.ref && r.ref === newR.ref) || r.name.toLowerCase() === newR.name.toLowerCase());
+          if (existing) {
+            Object.assign(existing, newR);
+          } else {
+            reagents.push(newR);
+          }
+        });
+      }
+
+      saveData();
+      closeModal('import-modal');
+      showToast(`Successfully imported ${parsedImportData.length} reagents from spreadsheet!`);
+      parsedImportData = null;
+      document.getElementById('import-file-input').value = '';
+      document.getElementById('import-preview-box').classList.add('hidden');
+      document.getElementById('confirm-import-btn').disabled = true;
+    }
+
+    // ----------------------------------------------------
+    // EXPORT TO EXCEL (.XLSX)
+    // ----------------------------------------------------
+    function exportExcel() {
+      const dataRows = reagents.map(r => {
+        const inUseLots = (r.inUseBatches || []).map(b => `(${b.qty}) Lot:${b.lot || 'N/A'} Exp:${b.exp || 'N/A'}`).join(" | ");
+        const stockLots = (r.stockBatches || []).map(b => `(${b.qty}) Lot:${b.lot || 'N/A'} Exp:${b.exp || 'N/A'}`).join(" | ");
+
+        return {
+          "Reference #": r.ref || '',
+          "Manufacturer": r.mfg || '',
+          "Item Name": r.name || '',
+          "Test Purpose": r.purpose || '',
+          "RTU or Conc": r.rtu || '',
+          "MIN QTY": r.min || 1,
+          "Stock (Sealed)": r.stock || 0,
+          "In Use (Open)": r.inUse || 0,
+          "Total QTY": (r.stock || 0) + (r.inUse || 0),
+          "In-Use Lots": inUseLots,
+          "Stock Lots": stockLots,
+          "Needs Order Placed": r.needsOrder ? "YES" : "NO",
+          "Comments / Notes": r.comments || ''
+        };
+      });
+
+      if (typeof XLSX !== 'undefined') {
+        const ws = XLSX.utils.json_to_sheet(dataRows);
+        // Set column widths
+        ws['!cols'] = [
+          { wch: 22 }, // Ref
+          { wch: 26 }, // Mfg
+          { wch: 38 }, // Name
+          { wch: 24 }, // Purpose
+          { wch: 12 }, // RTU
+          { wch: 10 }, // Min
+          { wch: 12 }, // Stock
+          { wch: 12 }, // In Use
+          { wch: 10 }, // Total
+          { wch: 30 }, // In-Use Lots
+          { wch: 36 }, // Stock Lots
+          { wch: 18 }, // Needs Order
+          { wch: 40 }  // Comments
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Histology Inventory");
+        const dateStr = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, `Histology_Inventory_Export_${dateStr}.xlsx`);
+        closeModal('export-modal');
+        showToast("Excel spreadsheet (.xlsx) downloaded successfully!");
+      } else {
+        exportCSV();
+      }
+    }
+
+    // ----------------------------------------------------
+    // EXPORT TO JSON (FULL TECHNICAL BACKUP)
+    // ----------------------------------------------------
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reagents, null, 2));
+      const link = document.createElement("a");
+      link.setAttribute("href", dataStr);
+      link.setAttribute("download", `Histology_Inventory_Backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      closeModal('export-modal');
+      showToast("JSON backup downloaded successfully!");
     }
 
     // Initialize
