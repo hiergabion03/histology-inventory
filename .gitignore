@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+*.log
+parse.js
+update_html.js

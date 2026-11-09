@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Histology 205 Reagent Inventory Manager</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-audit, #printable-audit * {
+        visibility: visible;
+      }
+      #printable-audit {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 10px;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="bg-teal-800 text-white shadow-md sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-teal-700 p-2 rounded-lg text-teal-100 flex items-center justify-center">
+          <i data-lucide="flask-conical" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">HistoTrack 205</h1>
+          <p class="text-xs text-teal-200">Histology Lab Reagent & Supply Inventory (SOP 205 v1.0)</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center space-x-2 text-sm">
+        <button onclick="openModal('help-modal')" class="bg-teal-700 hover:bg-teal-600 text-teal-100 hover:text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="How to Use This App">
+          <i data-lucide="help-circle" class="w-4 h-4 mr-1.5"></i> Guide
+        </button>
+        <button onclick="openModal('add-item-modal')" class="bg-teal-600 hover:bg-teal-500 text-white font-medium px-3.5 py-2 rounded-lg flex items-center shadow-sm transition">
+          <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> Add Reagent
+        </button>
+        <button onclick="triggerPrintAudit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3.5 py-2 rounded-lg flex items-center shadow-sm transition">
+          <i data-lucide="printer" class="w-4 h-4 mr-1.5"></i> Bi-Weekly Audit Print
+        </button>
+        <button onclick="exportCSV()" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-3 py-2 rounded-lg flex items-center shadow-sm transition" title="Export to Excel/CSV">
+          <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Export
+        </button>
+        <button onclick="resetToSampleData()" class="text-teal-200 hover:text-white p-2 rounded-lg transition" title="Reset to Original Excel Data">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 no-print">
+
+    <!-- KPI / METRICS DASHBOARD -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <!-- Total Items -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Reagents</p>
+          <p id="kpi-total-items" class="text-2xl font-bold text-slate-800 mt-1">60</p>
+          <span class="text-xs text-slate-500">Tracked in SOP 205</span>
+        </div>
+        <div class="p-3 bg-teal-50 text-teal-600 rounded-lg">
+          <i data-lucide="boxes" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Needs Order (Low Stock) -->
+      <div onclick="filterByNeedsOrder()" class="bg-white p-4 rounded-xl border border-rose-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-rose-400 transition">
+        <div>
+          <p class="text-xs font-medium text-rose-600 uppercase tracking-wider font-semibold">Needs Order</p>
+          <p id="kpi-low-stock" class="text-2xl font-bold text-rose-600 mt-1">4</p>
+          <span class="text-xs text-rose-500">Stock &le; Min Qty</span>
+        </div>
+        <div class="p-3 bg-rose-50 text-rose-600 rounded-lg">
+          <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- Expiring Soon / Expired -->
+      <div onclick="filterByExpiring()" class="bg-white p-4 rounded-xl border border-amber-200 shadow-sm flex items-center justify-between cursor-pointer hover:border-amber-400 transition">
+        <div>
+          <p class="text-xs font-medium text-amber-700 uppercase tracking-wider font-semibold">Expiring / Expired</p>
+          <p id="kpi-expiring" class="text-2xl font-bold text-amber-600 mt-1">3</p>
+          <span class="text-xs text-amber-600">&le; 60 days or expired</span>
+        </div>
+        <div class="p-3 bg-amber-50 text-amber-600 rounded-lg">
+          <i data-lucide="clock" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <!-- In-Use Bottles -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Active In-Use</p>
+          <p id="kpi-in-use" class="text-2xl font-bold text-teal-700 mt-1">16</p>
+          <span class="text-xs text-slate-500">Bottles on stain benches</span>
+        </div>
+        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
+          <i data-lucide="beaker" class="w-6 h-6"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER & SEARCH BAR -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+        <!-- Search Input -->
+        <div class="relative w-full md:w-96">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Search by reagent name, ref #, lot, stain..."
+            oninput="renderInventory()" 
+            class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+          >
+        </div>
+
+        <!-- Quick Filter Buttons -->
+        <div class="flex flex-wrap gap-1.5 w-full md:w-auto text-xs" id="filter-pills">
+          <button onclick="setFilter('ALL')" class="filter-pill active px-3 py-1.5 rounded-full font-medium bg-teal-800 text-white">All (60)</button>
+          <button onclick="setFilter('LOW_STOCK')" class="filter-pill px-3 py-1.5 rounded-full font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5"></span> Needs Order
+          </button>
+          <button onclick="setFilter('EXPIRING')" class="filter-pill px-3 py-1.5 rounded-full font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center">
+            <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span> Expiring Soon
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Purpose / Stain Kit Quick Selector -->
+      <div class="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto text-xs py-1">
+        <span class="text-slate-400 font-medium whitespace-nowrap">Filter by Stain:</span>
+        <button onclick="setStainFilter('ALL')" class="stain-pill active text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-md font-medium whitespace-nowrap">All (60)</button>
+        <button onclick="setStainFilter('Movat')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Movat (Pentachrome)</button>
+        <button onclick="setStainFilter('Trichrome')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Trichrome (Masson's)</button>
+        <button onclick="setStainFilter('Reticulin')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Reticulin (G&S)</button>
+        <button onclick="setStainFilter('Gram')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Gram (Brown-Hopps)</button>
+        <button onclick="setStainFilter('Jones')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Jones & GMS Silver</button>
+        <button onclick="setStainFilter('Congo Red')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Congo Red (Amyloid)</button>
+        <button onclick="setStainFilter('Giemsa')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Giemsa / May-Grunwald</button>
+        <button onclick="setStainFilter('Iron')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Iron (Prussian Blue)</button>
+        <button onclick="setStainFilter('Copper')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">Copper (Rhodanine)</button>
+        <button onclick="setStainFilter('AFB')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">AFB (Acid Fast)</button>
+        <button onclick="setStainFilter('PAS')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">PAS / Diastase</button>
+        <button onclick="setStainFilter('General')" class="stain-pill text-slate-600 hover:bg-slate-100 px-2.5 py-1 rounded-md whitespace-nowrap">General Lab Reagents</button>
+      </div>
+    </div>
+
+    <!-- INVENTORY CARDS & TABLE -->
+    <div id="inventory-container" class="space-y-3">
+      <!-- Generated via JS -->
+    </div>
+
+  </main>
+
+  <!-- PRINTABLE BI-WEEKLY AUDIT VIEW (Matches Histology 205 v1.0 Sheet) -->
+  <div id="printable-audit" class="hidden">
+    <div class="text-center border-b pb-3 mb-4">
+      <div class="flex justify-between items-start text-xs text-slate-500 mb-1">
+        <span>Approved and current. Effective starting 8/10/2026. Histology 205 (version 1.0) Histology Inventory</span>
+        <span id="print-timestamp">Printed: </span>
+      </div>
+      <h2 class="text-xl font-bold text-slate-900 tracking-wide">HISTOLOGY BI-WEEKLY REAGENT & SUPPLY INVENTORY</h2>
+      <p class="text-xs text-slate-600">Verification of quantities, upcoming expiration dates, and appropriate storage temperatures.</p>
+    </div>
+
+    <!-- Sign-off Header -->
+    <table class="w-full border-collapse border border-slate-300 text-xs mb-4">
+      <tr>
+        <td class="border border-slate-300 p-2 font-bold bg-slate-100 w-1/4">Date Inventory Conducted:</td>
+        <td class="border border-slate-300 p-2 w-1/4" id="print-audit-date"></td>
+        <td class="border border-slate-300 p-2 font-bold bg-slate-100 w-1/4">Manager/Supervisor Review Initial & Date:</td>
+        <td class="border border-slate-300 p-2 w-1/4">_________________________</td>
+      </tr>
+      <tr>
+        <td class="border border-slate-300 p-2 font-bold bg-slate-100">Inventory Performed By:</td>
+        <td class="border border-slate-300 p-2" id="print-performed-by">Histotechnologist</td>
+        <td class="border border-slate-300 p-2 font-bold bg-slate-100">Review Status:</td>
+        <td class="border border-slate-300 p-2">[ &nbsp; ] Approved &nbsp;&nbsp; [ &nbsp; ] Orders Placed</td>
+      </tr>
+    </table>
+
+    <!-- Main Table -->
+    <table class="w-full border-collapse border border-slate-300 text-[11px]" id="audit-table">
+      <thead>
+        <tr class="bg-slate-100 text-slate-700">
+          <th class="border border-slate-300 p-1.5 text-left">Reference # / Kit</th>
+          <th class="border border-slate-300 p-1.5 text-left">Manufacturer</th>
+          <th class="border border-slate-300 p-1.5 text-left">Item Name</th>
+          <th class="border border-slate-300 p-1.5 text-left">Test Purpose</th>
+          <th class="border border-slate-300 p-1.5 text-center">RTU</th>
+          <th class="border border-slate-300 p-1.5 text-center">MIN</th>
+          <th class="border border-slate-300 p-1.5 text-center">Current QTY (Stock / In-Use)</th>
+          <th class="border border-slate-300 p-1.5 text-center">Expiry Verified</th>
+          <th class="border border-slate-300 p-1.5 text-center">Storage Temp</th>
+          <th class="border border-slate-300 p-1.5 text-left">Lot & Expiration / Comments</th>
+          <th class="border border-slate-300 p-1.5 text-center">Needs Order</th>
+        </tr>
+      </thead>
+      <tbody id="audit-table-body">
+        <!-- Rendered by JS -->
+      </tbody>
+    </table>
+    <div class="mt-4 text-xs text-slate-500 italic">
+      SOP 205: Inventory conducted every two weeks to ensure optimal levels of reagents. All items marked with [✓] in Needs Order require supervisor purchasing approval.
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT REAGENT -->
+  <div id="add-item-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800" id="modal-title">Add New Reagent</h3>
+        <button onclick="closeModal('add-item-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="reagent-form" onsubmit="saveReagent(event)" class="space-y-3 text-sm">
+        <input type="hidden" id="form-id">
+        
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Item Name *</label>
+          <input type="text" id="form-name" required placeholder="e.g. 1% Alcian Blue Solution" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Reference # / Kit</label>
+            <input type="text" id="form-ref" placeholder="KC4172 (Kit # KTRMPPT)" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Manufacturer</label>
+            <input type="text" id="form-mfg" placeholder="StatLab, Newcomer, etc." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Test Purpose (Stain)</label>
+            <input type="text" id="form-purpose" placeholder="Special Staining: Movat" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Type</label>
+            <select id="form-rtu" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+              <option value="RTU">RTU (Ready-To-Use)</option>
+              <option value="Conc.">Concentrate</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">MIN QTY *</label>
+            <input type="number" id="form-min" min="0" required value="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Stock (Unopened)</label>
+            <input type="number" id="form-stock" min="0" required value="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">In Use (Open)</label>
+            <input type="number" id="form-inuse" min="0" required value="1" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Lot Number</label>
+            <input type="text" id="form-lot" placeholder="Lot: 255378" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Expiration Date</label>
+            <input type="date" id="form-exp" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Comments / Multi-Lot Notes</label>
+          <textarea id="form-comments" rows="2" placeholder="e.g. In Use - Exp: 10/31/2026 Lot 232007; Stock - Exp: 1/31/2027" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-teal-600"></textarea>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('add-item-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-teal-700 hover:bg-teal-600 text-white font-medium rounded-lg">Save Reagent</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RECEIVE / RESTOCK SHIPMENT -->
+  <div id="restock-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">Receive Shipment / Restock</h3>
+        <button onclick="closeModal('restock-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <p class="font-medium text-slate-800" id="restock-item-name"></p>
+        <input type="hidden" id="restock-item-id">
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Bottles Received to Add to Stock</label>
+          <div class="flex items-center space-x-2">
+            <button onclick="changeRestockCount(-1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">-</button>
+            <input type="number" id="restock-qty" min="1" value="1" class="w-20 text-center font-bold text-lg border rounded-lg py-1.5">
+            <button onclick="changeRestockCount(1)" class="w-10 h-10 bg-slate-100 rounded-lg font-bold text-slate-600 text-lg hover:bg-slate-200">+</button>
+            <button onclick="setRestockCount(2)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+2</button>
+            <button onclick="setRestockCount(5)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-xs">+5</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">New Lot # (optional)</label>
+          <input type="text" id="restock-lot" placeholder="e.g. 264901" class="w-full px-3 py-2 border rounded-lg">
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">New Expiration Date (optional)</label>
+          <input type="date" id="restock-exp" class="w-full px-3 py-2 border rounded-lg">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-3 border-t">
+          <button type="button" onclick="closeModal('restock-modal')" class="px-4 py-2 border rounded-lg text-slate-600 hover:bg-slate-50">Cancel</button>
+          <button type="button" onclick="confirmRestock()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg">Confirm Restock</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HELP / USER GUIDE -->
+  <div id="help-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center p-5 border-b">
+        <div class="flex items-center space-x-2.5">
+          <div class="p-2 bg-teal-100 text-teal-800 rounded-lg">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800">Histology 205 User Guide</h3>
+            <p class="text-xs text-slate-500">Quick cheat-sheet for daily routine and bi-weekly audits</p>
+          </div>
+        </div>
+        <button onclick="closeModal('help-modal')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-5 text-sm text-slate-600">
+        
+        <!-- Step 1 -->
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-4">
+          <h4 class="font-bold text-teal-900 flex items-center text-sm mb-1">
+            <i data-lucide="layers" class="w-4 h-4 mr-1.5 text-teal-700"></i>
+            1. The Core Rule: Stock (Sealed) vs. In-Use (Open)
+          </h4>
+          <p class="text-xs text-teal-800 leading-relaxed">
+            • <strong>Stock (Sealed):</strong> Bottles stored in flammables, acid cabinets, or 4°C refrigerators.<br>
+            • <strong>In-Use (Open):</strong> The active bottle currently on the special staining bench or autostainer.<br>
+            • <strong>Total = Stock + In-Use.</strong>
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
+            <i data-lucide="zap" class="w-4 h-4 mr-1.5 text-amber-500"></i>
+            2. Your Daily Bench Actions
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <strong class="text-teal-800 font-semibold block mb-1">⚡ Open New Bottle</strong>
+              <p>When you take a sealed bottle from the cabinet to the bench. It decreases <strong>Stock by 1</strong> and increases <strong>In-Use by 1</strong>. If total drops to or below <strong>MIN QTY</strong>, it flags red automatically.</p>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <strong class="text-slate-800 font-semibold block mb-1">✓ Finish Bottle</strong>
+              <p>When an in-use bottle runs dry. You can either discard it, or immediately pull a fresh replacement from stock with 1 click.</p>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <strong class="text-emerald-700 font-semibold block mb-1">📦 Receive Shipment</strong>
+              <p>When a package arrives from StatLab, MasterTech, or Newcomer. Add the new bottles to Stock and record the new Lot # and Expiry Date.</p>
+            </div>
+            <div class="border border-slate-200 rounded-lg p-3 bg-slate-50">
+              <strong class="text-rose-700 font-semibold block mb-1">🛒 Needs Order</strong>
+              <p>Automatically flags when <code>Total &le; MIN</code>. You can also tap the cart icon to manually flag any reagent your supervisor should order.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
+            <i data-lucide="filter" class="w-4 h-4 mr-1.5 text-teal-600"></i>
+            3. Checking Special Stain Kits
+          </h4>
+          <p class="text-xs text-slate-600 leading-relaxed mb-2">
+            Stains like <strong>Russell Movat Pentachrome</strong> require 7 distinct reagents. Click the stain pills (e.g. <em>Movat, Giemsa, Congo Red, Gram, Reticulin</em>) at the top to check at a glance if every required component is in stock and unexpired.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-2 flex items-center">
+            <i data-lucide="printer" class="w-4 h-4 mr-1.5 text-blue-600"></i>
+            4. Bi-Weekly Audit & CAP Binder Printout
+          </h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Click <strong>"Bi-Weekly Audit Print"</strong> anytime to generate a clean, official report formatted exactly to your lab's <em>Histology 205 (v1.0)</em> document. It includes checklist verification boxes for <strong>Storage Temp</strong> and <strong>Expiry Date</strong>, plus lines for your initials and supervisor sign-off.
+          </p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="border-t pt-3 flex items-center justify-between text-xs text-slate-500">
+          <span>💾 All changes save automatically to this computer.</span>
+          <button onclick="exportCSV()" class="text-teal-700 font-semibold hover:underline flex items-center">
+            <i data-lucide="download" class="w-3.5 h-3.5 mr-1"></i> Download Backup File
+          </button>
+        </div>
+
+      </div>
+
+      <div class="p-4 border-t bg-slate-50 flex justify-end">
+        <button onclick="closeModal('help-modal')" class="px-4 py-2 bg-teal-800 hover:bg-teal-700 text-white font-medium rounded-lg text-xs">Got it, thanks!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center space-x-2 text-sm z-50 transform transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+    <span id="toast-message">Notification message</span>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    // Initial Real Data from Her Spreadsheet
+    const INITIAL_REAGENTS = [
+  {
+    "id": "1",
+    "ref": "KC4172 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Alcian Blue Solution (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 4,
+    "inUse": 1,
+    "lot": "255378",
+    "exp": "2026-09-30",
+    "comments": "Exp: 9/30/2026 Lot: 255378",
+    "needsOrder": true
+  },
+  {
+    "id": "2",
+    "ref": "KC4112 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "10% Alcoholic Hematoxylin (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "232007",
+    "exp": "2026-10-31",
+    "comments": "In Use - Exp: 10/31/2026 Lot 232007\nStock -  Exp: 1/31/2027 Lot 240264",
+    "needsOrder": false
+  },
+  {
+    "id": "3",
+    "ref": "AHF0143 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "10% Ferric Chloride (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "241821",
+    "exp": "2026-11-30",
+    "comments": "Exp: 11/30/2026 Lot: 241821",
+    "needsOrder": true
+  },
+  {
+    "id": "4",
+    "ref": "KC4142 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "2% Ferric Chloride (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "247858",
+    "exp": "2027-01-31",
+    "comments": "Exp: 1/31/2027 Lot 247858",
+    "needsOrder": false
+  },
+  {
+    "id": "5",
+    "ref": "SSAHA04 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Acetic Acid (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "245560",
+    "exp": "2026-12-31",
+    "comments": "Exp: 12/31/2026 Lot 245560",
+    "needsOrder": true
+  },
+  {
+    "id": "6",
+    "ref": "AHP0650 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "5% Phosphotunstic Acid (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 4,
+    "inUse": 1,
+    "lot": "261001",
+    "exp": "2027-07-31",
+    "comments": "In Use - Exp: 7/31/2027 Lot 261001\nStock -  (2) Exp: 7/31/2027 Lot 261001\n               (2) Exp: 3/31/2027 Lot 249224",
+    "needsOrder": false
+  },
+  {
+    "id": "7",
+    "ref": "AHS0343 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "5% Sodium Thiosulfate (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 2,
+    "inUse": 0,
+    "lot": "260340",
+    "exp": "2027-06-30",
+    "comments": "Exp: 6/30/2027 Lot 260340",
+    "needsOrder": true
+  },
+  {
+    "id": "8",
+    "ref": "STMGRPT (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "May-Grunwald Stock (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "232592",
+    "exp": "2026-12-31",
+    "comments": "Exp: 12/31/2026 Lot 232592",
+    "needsOrder": true
+  },
+  {
+    "id": "9",
+    "ref": "STGIEPT (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Giemsa Stock (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "239130",
+    "exp": "2027-03-31",
+    "comments": "Exp: 3/31/2027 Lot 239130",
+    "needsOrder": true
+  },
+  {
+    "id": "10",
+    "ref": "AHA00188E (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Acid Alcohol (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "242570",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 242570",
+    "needsOrder": false
+  },
+  {
+    "id": "11",
+    "ref": "SSKC41A (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Alcoholic Safron Solution (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 3,
+    "inUse": 1,
+    "lot": "258054",
+    "exp": "2026-10-31",
+    "comments": "Exp: 10/31/2026 Lot258054",
+    "needsOrder": false
+  },
+  {
+    "id": "12",
+    "ref": "1905B",
+    "mfg": "Newcomer Supply",
+    "name": "Alpha Amylase 1%, aqueous",
+    "purpose": "Special Staining: PAS (including Diastase and Fungus)",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "87253",
+    "exp": "2027-07-28",
+    "comments": "Exp: 7/2027 Lot 87253",
+    "needsOrder": true
+  },
+  {
+    "id": "13",
+    "ref": "1006",
+    "mfg": "Newcomer Supply",
+    "name": "Ammonium Hydroxide 28-30%, ACS NH4OH FW 35.05",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "14",
+    "ref": "s122 -",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Basic Fuchsin 0.5% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "247738",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 247738",
+    "needsOrder": true
+  },
+  {
+    "id": "15",
+    "ref": "s163D",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Cellosolve (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "264691",
+    "exp": "2027-03-05",
+    "comments": "Exp: 3/5/2027 Lot 264691",
+    "needsOrder": true
+  },
+  {
+    "id": "16",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Alkaline Congo Red Solution (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "251116",
+    "exp": "2027-02-29",
+    "comments": "Exp: 2/29/2027 Lot 251116",
+    "needsOrder": false
+  },
+  {
+    "id": "17",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Modified Mayer's Hematoxylin (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "256053",
+    "exp": "2027-04-30",
+    "comments": "Exp 4/30/2027 Lot 256053",
+    "needsOrder": false
+  },
+  {
+    "id": "18",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "Alkaline Alcohol Solution (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 3,
+    "lot": "251117",
+    "exp": "2027-01-31",
+    "comments": "In Use - Exp: 1/31/2027 Lot 251117\nStock -  (1) Exp: 1/31/2027 Lot 251117\n               (2) Exp: 3/31/2027 Lot 256747",
+    "needsOrder": false
+  },
+  {
+    "id": "19",
+    "ref": "KTACRPT",
+    "mfg": "STAT LAB",
+    "name": "1% Sodium Hydroxide (Amyloid Stain Kit)",
+    "purpose": "Special Staining: Congo Red",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "243826",
+    "exp": "2026-12-31",
+    "comments": "In Use - Exp: 12/31/2026 Lot 243826\nStock - Exp: 5/31/2027 Lot 258211",
+    "needsOrder": false
+  },
+  {
+    "id": "20",
+    "ref": "KC41B2 (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Crocein Scarlet Acid Fuchsin (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 3,
+    "stock": 6,
+    "inUse": 1,
+    "lot": "248674",
+    "exp": "2027-05-31",
+    "comments": "In Use - Exp: 5/31/2027 Lot 248674\nStock - Exp: 9/30/3037 Lot 261093",
+    "needsOrder": false
+  },
+  {
+    "id": "21",
+    "ref": "s167D",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Cystal Violet 1% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 2,
+    "lot": "237377",
+    "exp": "2026-08-31",
+    "comments": "In Use - Exp: 8/31/2026 Lot 237377\nStock -  (1) Exp: 8/31/2026 Lot 237377\n               (1) Exp: 3/31/2027 Lot 256103",
+    "needsOrder": false
+  },
+  {
+    "id": "22",
+    "ref": "s189",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Gallego's Differentiating (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 2,
+    "lot": "229157",
+    "exp": "2027-05-31",
+    "comments": "In Use - Exp: 5/31/2027 Lot 229157\nStock -  (1) Exp: 12/31/2027 Lot 246128\n               (1) Exp: 10/31/2027 Lot 241748",
+    "needsOrder": false
+  },
+  {
+    "id": "23",
+    "ref": "BUP1057",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphate Buffer 6.8pH",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "247833",
+    "exp": "2026-09-30",
+    "comments": "In Use - Exp: 9/30/2026 Lot 247833\nStock - Exp: 4/30/2027 Lot 266990",
+    "needsOrder": false
+  },
+  {
+    "id": "24",
+    "ref": "BUP1043 (Kit #:KTGMGPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphate Buffer pH 6.8 (Giemsa/May-Grunwald Stain Kit)",
+    "purpose": "Special Staining: Giemsa",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "247833",
+    "exp": "2026-09-30",
+    "comments": "Exp: 9/30/2026 lot 247833",
+    "needsOrder": true
+  },
+  {
+    "id": "25",
+    "ref": "C8551",
+    "mfg": "Cancer Diagnostis",
+    "name": "Glacial Acetic Acid",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "2600809",
+    "exp": "2030-01-18",
+    "comments": "Exp: 1/18/2030 Lot 2600809",
+    "needsOrder": true
+  },
+  {
+    "id": "26",
+    "ref": "s204",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Gram's Iodine (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 1,
+    "lot": "241750",
+    "exp": "2027-10-31",
+    "comments": "Exp: 10/31/2027 Lot 241750",
+    "needsOrder": true
+  },
+  {
+    "id": "27",
+    "ref": "1202 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Hematoxylin Stain, Mayer Modified (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "2526130",
+    "exp": "2026-09-30",
+    "comments": "In Use - Exp: 9/30/2026 Lot 2526130\nStock - Exp: 6/8/2027 Lot 2614735",
+    "needsOrder": false
+  },
+  {
+    "id": "28",
+    "ref": "AHH0243 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Hydrochloric Acid",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "254418",
+    "exp": "2027-09-30",
+    "comments": "Exp: 9/30/2027 Lot 254418",
+    "needsOrder": false
+  },
+  {
+    "id": "29",
+    "ref": "AH50443",
+    "mfg": "STAT LAB",
+    "name": "Silver Nitrate Solution 5%",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 1,
+    "inUse": 1,
+    "lot": "241418",
+    "exp": "2026-10-31",
+    "comments": "In Use - Exp: 10/31/2026 Lot 241418\nStock - Exp: 1/31/2027 Lot 266975",
+    "needsOrder": false
+  },
+  {
+    "id": "30",
+    "ref": "S1895-8OZ",
+    "mfg": "STAT LAB / Poly Scientific R &D",
+    "name": "Sodium Thiosulfate 5% Aqueous",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 1,
+    "inUse": 17,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": false
+  },
+  {
+    "id": "31",
+    "ref": "11286B",
+    "mfg": "Newcomer Supply",
+    "name": "Gold Chloride 0.2% Aqueous",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "32",
+    "ref": "88023",
+    "mfg": "Epredia",
+    "name": "Methenamine-Borax Capsules cases",
+    "purpose": "Special Staining: Jones and GMS",
+    "rtu": "RTU",
+    "min": 4,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "33",
+    "ref": "STLGCPT (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Light Green Counterstain (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "34",
+    "ref": "STACFPT (Kit# KTAFBPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Advanced Carbol Fuchsin™ (AFB Stain Kit)",
+    "purpose": "Special Staining: AFB",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "35",
+    "ref": "STNFR100 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Nuclear Fast Red Stain",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "36",
+    "ref": "s1861",
+    "mfg": "Poly Scientific R&D",
+    "name": "Periodic Acid 1% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 5,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "37",
+    "ref": "HXWEAPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Weigert's Hematoxylin A (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "38",
+    "ref": "HXWHEBPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Weigert's Hematoxylin B (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "39",
+    "ref": "FXBOUPT (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Bouin's Fluid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "40",
+    "ref": "AHB0443 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Biebrich Scarlet - Acid Fuchsin (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "41",
+    "ref": "AHP0543 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Phosphomolybdic / Phosphotungstic Acid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "42",
+    "ref": "AHA0543 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Aniline Blue Stain (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "43",
+    "ref": "AHA0343 (Kit# KTMTRPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "1% Acetic Acid (Trichrome Stain Kit - Masson's)",
+    "purpose": "Special Staining: Trichrome",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "44",
+    "ref": "AHP0443 (Ref # KTIROLT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "3% Potassium Ferrocyanide",
+    "purpose": "Special Staining: Iron",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "45",
+    "ref": "10531 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Rhodanin Stock Stain 0.2% Alcoholic (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "46",
+    "ref": "33700",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Schiff Reagent",
+    "purpose": "Special Staining: PAS (including Diastase and Fungus)",
+    "rtu": "RTU",
+    "min": 4,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "47",
+    "ref": "13824 (Ref # 9113A)",
+    "mfg": "Newcomer Supply",
+    "name": "Sodium Borate 0.5%, Aqueous (Copper, Rhodanine Stain Kit)",
+    "purpose": "Special Staining: Copper",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "48",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'B: Oxalic Acid 1%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "49",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n A: Potassium Permanganate 1 %, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "50",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n C: Ferric Ammonium Sulfate 2.5%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "51",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n D: Silver Nitrate 10%, aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "52",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n E: Ammonium Hydroxide 28 -30%, ACS (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "53",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n F: Sodium Hydroxide 3%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "54",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n G: Formalin 10%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "55",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n H: Gold Choride 0.2%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "56",
+    "ref": "9168A (Kit # 9168)",
+    "mfg": "Newcomer Supply",
+    "name": "Sol'n I: Sodium Thiosulfate 5%, Aqueous (Reticulum, Gordon & Sweets Stain kit)",
+    "purpose": "Special Staining: Reticulin",
+    "rtu": "RTU",
+    "min": 2,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "57",
+    "ref": "s284",
+    "mfg": "Poly Scientific R&D - Special Staining: Gram",
+    "name": "Tartrazine 1.5% Aqueous (Brown Hopps Method for Gram Positive & Gram Negative Bacteria)",
+    "purpose": "Special Stain: Gram",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "58",
+    "ref": "STUIOP (Kit # KTRMPPT)",
+    "mfg": "StatLab / American MasterTech",
+    "name": "Universal Iodine (Pentachrome Stain Kit - Russell Movat)",
+    "purpose": "Special Staining: Movat",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "59",
+    "ref": "s1861-16oz",
+    "mfg": "Poly Scientific / STAT LAB",
+    "name": "Periodic Acid 1% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 6,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  },
+  {
+    "id": "60",
+    "ref": "s232-8oz",
+    "mfg": "Poly Scientific",
+    "name": "Fast green Substitute for Light Green 0.2% Aqueous",
+    "purpose": "Special Staining: General",
+    "rtu": "RTU",
+    "min": 1,
+    "stock": 0,
+    "inUse": 0,
+    "lot": "",
+    "exp": "",
+    "comments": "",
+    "needsOrder": true
+  }
+];
+
+    // Local Storage Management
+    const STORAGE_KEY = "histology_inventory_v2";
+    let reagents = [];
+    let currentFilter = 'ALL';
+    let currentStainFilter = 'ALL';
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          reagents = JSON.parse(saved);
+        } catch (e) {
+          reagents = [...INITIAL_REAGENTS];
+        }
+      } else {
+        reagents = [...INITIAL_REAGENTS];
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reagents));
+      updateKPIs();
+      renderInventory();
+    }
+
+    function resetToSampleData() {
+      if (confirm("Reset inventory back to original sample data from the spreadsheet?")) {
+        reagents = JSON.parse(JSON.stringify(INITIAL_REAGENTS));
+        saveData();
+        showToast("Reset to original 18 reagents!");
+      }
+    }
+
+    // Helper: Days until expiration
+    function getDaysUntilExp(expDateString) {
+      if (!expDateString) return 9999;
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const exp = new Date(expDateString);
+      const diffTime = exp - today;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // Core Logic: Open New Bottle from Stock into In-Use
+    function openFromStock(id) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      if (item.stock <= 0) {
+        showToast(`Cannot open bottle: No unopened stock available for "${item.name}"!`, true);
+        return;
+      }
+
+      // Decrement stock, increment in-use
+      item.stock -= 1;
+      item.inUse += 1;
+
+      // Automatically check low stock
+      const total = item.stock + item.inUse;
+      if (total <= item.min || item.stock === 0) {
+        item.needsOrder = true;
+      }
+
+      saveData();
+      showToast(`Opened 1 bottle of "${item.name}". Stock is now ${item.stock}. Total: ${total}.`);
+    }
+
+    // Discard / Finish In-Use Bottle
+    function finishInUse(id) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      if (item.inUse <= 0) {
+        showToast(`No bottles currently marked 'In Use' to finish!`, true);
+        return;
+      }
+
+      // Check if tech wants to replace immediately or just discard
+      if (item.stock > 0 && confirm(`Discard empty bottle of "${item.name}"?\n\nYou have ${item.stock} in stock. Pull a replacement from stock now?`)) {
+        item.inUse -= 1; // finished previous
+        item.stock -= 1; // took replacement
+        item.inUse += 1; // new one in use
+        const total = item.stock + item.inUse;
+        if (total <= item.min || item.stock === 0) {
+          item.needsOrder = true;
+        }
+        saveData();
+        showToast(`Replaced in-use bottle. Remaining Stock: ${item.stock}. Total: ${total}.`);
+      } else {
+        item.inUse -= 1;
+        const total = item.stock + item.inUse;
+        if (total <= item.min || item.stock === 0) {
+          item.needsOrder = true;
+        }
+        saveData();
+        showToast(`Finished bottle. In Use is now ${item.inUse}. Total: ${total}.`);
+      }
+    }
+
+    // Adjust Stock Directly (+ / -)
+    function adjustStock(id, delta) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      const newStock = item.stock + delta;
+      if (newStock < 0) return;
+
+      item.stock = newStock;
+      const total = item.stock + item.inUse;
+      if (total <= item.min) {
+        item.needsOrder = true;
+      } else if (total > item.min && item.stock > 0) {
+        // If they restocked above min, can uncheck needs order automatically
+        item.needsOrder = false;
+      }
+
+      saveData();
+      showToast(`Stock updated to ${item.stock} (Total: ${total})`);
+    }
+
+    // Toggle Order Status Manually
+    function toggleOrder(id) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+      item.needsOrder = !item.needsOrder;
+      saveData();
+      showToast(item.needsOrder ? "Marked as Needs Order Placed" : "Removed from Order list");
+    }
+
+    // KPI Counters
+    function updateKPIs() {
+      let lowStockCount = 0;
+      let expiringCount = 0;
+      let totalInUse = 0;
+
+      reagents.forEach(r => {
+        const total = r.stock + r.inUse;
+        if (total <= r.min || r.needsOrder || r.stock === 0) {
+          lowStockCount++;
+        }
+        const days = getDaysUntilExp(r.exp);
+        if (days <= 60) {
+          expiringCount++;
+        }
+        totalInUse += r.inUse;
+      });
+
+      document.getElementById("kpi-total-items").innerText = reagents.length;
+      document.getElementById("kpi-low-stock").innerText = lowStockCount;
+      document.getElementById("kpi-expiring").innerText = expiringCount;
+      document.getElementById("kpi-in-use").innerText = totalInUse;
+    }
+
+    // Filter controls
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll(".filter-pill").forEach(el => el.classList.remove("active", "bg-teal-800", "text-white"));
+      event.target.classList.add("active", "bg-teal-800", "text-white");
+      renderInventory();
+    }
+
+    function filterByNeedsOrder() {
+      currentFilter = 'LOW_STOCK';
+      renderInventory();
+    }
+
+    function filterByExpiring() {
+      currentFilter = 'EXPIRING';
+      renderInventory();
+    }
+
+    function setStainFilter(stain) {
+      currentStainFilter = stain;
+      document.querySelectorAll(".stain-pill").forEach(el => {
+        el.classList.remove("active", "text-teal-700", "bg-teal-50", "border-teal-200");
+        el.classList.add("text-slate-600");
+      });
+      event.target.classList.add("active", "text-teal-700", "bg-teal-50", "border-teal-200");
+      renderInventory();
+    }
+
+    // Render Cards / Rows
+    function renderInventory() {
+      const container = document.getElementById("inventory-container");
+      const searchQuery = (document.getElementById("search-input").value || "").toLowerCase().trim();
+
+      const filtered = reagents.filter(item => {
+        const total = item.stock + item.inUse;
+        const days = getDaysUntilExp(item.exp);
+
+        // Filter by state
+        if (currentFilter === 'LOW_STOCK' && !(total <= item.min || item.needsOrder || item.stock === 0)) {
+          return false;
+        }
+        if (currentFilter === 'EXPIRING' && days > 60) {
+          return false;
+        }
+
+        // Filter by stain
+        if (currentStainFilter !== 'ALL' && !item.purpose.toLowerCase().includes(currentStainFilter.toLowerCase())) {
+          return false;
+        }
+
+        // Filter by search
+        if (searchQuery) {
+          const matchString = `${item.name} ${item.ref} ${item.mfg} ${item.purpose} ${item.lot} ${item.comments}`.toLowerCase();
+          if (!matchString.includes(searchQuery)) return false;
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-xl border border-slate-200 p-8">
+            <i data-lucide="package-search" class="w-12 h-12 mx-auto text-slate-300 mb-3"></i>
+            <h4 class="text-base font-semibold text-slate-700">No reagents match your filter</h4>
+            <p class="text-xs text-slate-400 mt-1">Try clearing your search query or switching filters.</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const total = item.stock + item.inUse;
+        const isLow = total <= item.min || item.stock === 0;
+        const daysExp = getDaysUntilExp(item.exp);
+
+        // Expiry Badge
+        let expBadge = '';
+        if (item.exp) {
+          if (daysExp < 0) {
+            expBadge = `<span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">⚠️ EXPIRED (${item.exp})</span>`;
+          } else if (daysExp <= 30) {
+            expBadge = `<span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">Exp in ${daysExp}d (${item.exp})</span>`;
+          } else if (daysExp <= 60) {
+            expBadge = `<span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">Exp: ${item.exp} (${daysExp}d)</span>`;
+          } else {
+            expBadge = `<span class="text-xs text-slate-500">Exp: ${item.exp}</span>`;
+          }
+        }
+
+        return `
+          <div class="bg-white rounded-xl border ${isLow ? 'border-rose-300 ring-1 ring-rose-200' : 'border-slate-200'} p-4 shadow-sm hover:shadow-md transition">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              
+              <!-- LEFT: Reagent Info -->
+              <div class="space-y-1.5 flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded border border-teal-200">${item.purpose}</span>
+                  <span class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">${item.ref}</span>
+                  <span class="text-xs text-slate-400 font-medium">${item.mfg}</span>
+                  ${item.rtu ? `<span class="text-[10px] font-bold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">${item.rtu}</span>` : ''}
+                </div>
+
+                <h3 class="text-base font-bold text-slate-900 leading-snug">${item.name}</h3>
+
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-600 pt-1">
+                  ${item.lot ? `<span><strong>Lot:</strong> <span class="font-mono">${item.lot}</span></span>` : ''}
+                  ${expBadge}
+                  ${item.comments ? `<span class="text-slate-500 italic max-w-md truncate" title="${item.comments}">Note: ${item.comments}</span>` : ''}
+                </div>
+              </div>
+
+              <!-- MIDDLE: Quantity Counters (Stock & In Use) -->
+              <div class="flex items-center gap-4 bg-slate-50 border border-slate-200 p-2.5 rounded-xl w-full lg:w-auto justify-between lg:justify-start">
+                
+                <!-- Stock (Unopened) -->
+                <div class="text-center px-2">
+                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Stock (Sealed)</span>
+                  <div class="flex items-center justify-center space-x-1.5 mt-0.5">
+                    <button onclick="adjustStock('${item.id}', -1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-slate-300 font-bold text-xs text-slate-700">-</button>
+                    <span class="text-xl font-bold ${item.stock === 0 ? 'text-rose-600' : 'text-slate-800'} px-1.5">${item.stock}</span>
+                    <button onclick="adjustStock('${item.id}', 1)" class="w-6 h-6 rounded bg-slate-200 hover:bg-slate-300 font-bold text-xs text-slate-700">+</button>
+                  </div>
+                </div>
+
+                <div class="h-8 w-px bg-slate-200"></div>
+
+                <!-- In Use (Open) -->
+                <div class="text-center px-2">
+                  <span class="text-[10px] uppercase font-bold text-teal-700 tracking-wider block">In-Use (Open)</span>
+                  <span class="text-xl font-bold text-teal-800 block mt-0.5">${item.inUse}</span>
+                </div>
+
+                <div class="h-8 w-px bg-slate-200"></div>
+
+                <!-- Total & Min -->
+                <div class="text-center px-2">
+                  <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">Total / Min</span>
+                  <div class="mt-0.5">
+                    <span class="text-base font-bold ${isLow ? 'text-rose-600' : 'text-slate-800'}">${total}</span>
+                    <span class="text-xs text-slate-400">/ ${item.min} min</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- RIGHT: Action Buttons -->
+              <div class="flex flex-wrap lg:flex-nowrap items-center gap-2 w-full lg:w-auto justify-end">
+                
+                <!-- The Core Button: Open New Bottle From Stock -->
+                <button 
+                  onclick="openFromStock('${item.id}')" 
+                  class="flex-1 lg:flex-none bg-teal-700 hover:bg-teal-600 text-white font-medium px-3.5 py-2 rounded-lg text-xs flex items-center justify-center shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
+                  ${item.stock <= 0 ? 'disabled title="No sealed stock available to open!"' : 'title="Take 1 bottle from stock and put on bench"'}
+                >
+                  <i data-lucide="arrow-right-circle" class="w-4 h-4 mr-1.5"></i> Open New Bottle
+                </button>
+
+                <!-- Finish In Use -->
+                <button 
+                  onclick="finishInUse('${item.id}')" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-2.5 py-2 rounded-lg text-xs flex items-center transition"
+                  title="Empty / discard the active in-use bottle"
+                >
+                  <i data-lucide="check" class="w-3.5 h-3.5 mr-1"></i> Finish
+                </button>
+
+                <!-- Receive Stock (+) -->
+                <button 
+                  onclick="openRestockModal('${item.id}')" 
+                  class="bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 font-medium px-2.5 py-2 rounded-lg text-xs flex items-center transition"
+                  title="Receive new shipment bottles"
+                >
+                  <i data-lucide="package-plus" class="w-3.5 h-3.5 mr-1"></i> Receive
+                </button>
+
+                <!-- Toggle Needs Order -->
+                <button 
+                  onclick="toggleOrder('${item.id}')" 
+                  class="p-2 rounded-lg text-xs font-medium border transition ${item.needsOrder ? 'bg-rose-50 border-rose-300 text-rose-700' : 'border-slate-200 text-slate-400 hover:text-slate-600'}"
+                  title="${item.needsOrder ? 'Marked: Order Needed (Click to uncheck)' : 'Click to flag for purchasing'}"
+                >
+                  <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Edit Details -->
+                <button 
+                  onclick="openEditModal('${item.id}')" 
+                  class="p-2 rounded-lg text-xs text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+                  title="Edit details"
+                >
+                  <i data-lucide="edit-2" class="w-4 h-4"></i>
+                </button>
+
+              </div>
+
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    // Restock Modal Handlers
+    function openRestockModal(id) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById("restock-item-id").value = item.id;
+      document.getElementById("restock-item-name").innerText = `${item.name} (${item.ref})`;
+      document.getElementById("restock-qty").value = 1;
+      document.getElementById("restock-lot").value = "";
+      document.getElementById("restock-exp").value = "";
+      openModal("restock-modal");
+    }
+
+    function changeRestockCount(delta) {
+      const input = document.getElementById("restock-qty");
+      let val = parseInt(input.value) || 1;
+      val += delta;
+      if (val < 1) val = 1;
+      input.value = val;
+    }
+
+    function setRestockCount(num) {
+      document.getElementById("restock-qty").value = num;
+    }
+
+    function confirmRestock() {
+      const id = document.getElementById("restock-item-id").value;
+      const qty = parseInt(document.getElementById("restock-qty").value) || 1;
+      const lot = document.getElementById("restock-lot").value.trim();
+      const exp = document.getElementById("restock-exp").value;
+
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      item.stock += qty;
+      if (lot) item.lot = lot;
+      if (exp) item.exp = exp;
+
+      // Update comments if new lot/exp provided
+      if (lot || exp) {
+        item.comments = `Restocked (+${qty}) on ${new Date().toLocaleDateString()}: Lot ${lot || 'N/A'}, Exp ${exp || 'N/A'}\n${item.comments || ''}`.trim();
+      }
+
+      // Check if order fulfilled
+      const total = item.stock + item.inUse;
+      if (total > item.min && item.stock > 0) {
+        item.needsOrder = false;
+      }
+
+      saveData();
+      closeModal("restock-modal");
+      showToast(`Restocked +${qty} bottles of "${item.name}". Current Stock: ${item.stock}. Total: ${total}.`);
+    }
+
+    // Modal Helpers
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // Add / Edit Modal Handlers
+    function openEditModal(id) {
+      const item = reagents.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById("modal-title").innerText = "Edit Reagent";
+      document.getElementById("form-id").value = item.id;
+      document.getElementById("form-name").value = item.name;
+      document.getElementById("form-ref").value = item.ref || "";
+      document.getElementById("form-mfg").value = item.mfg || "";
+      document.getElementById("form-purpose").value = item.purpose || "";
+      document.getElementById("form-rtu").value = item.rtu || "RTU";
+      document.getElementById("form-min").value = item.min;
+      document.getElementById("form-stock").value = item.stock;
+      document.getElementById("form-inuse").value = item.inUse;
+      document.getElementById("form-lot").value = item.lot || "";
+      document.getElementById("form-exp").value = item.exp || "";
+      document.getElementById("form-comments").value = item.comments || "";
+
+      openModal("add-item-modal");
+    }
+
+    function saveReagent(e) {
+      e.preventDefault();
+      const editId = document.getElementById("form-id").value;
+
+      const data = {
+        name: document.getElementById("form-name").value.trim(),
+        ref: document.getElementById("form-ref").value.trim(),
+        mfg: document.getElementById("form-mfg").value.trim(),
+        purpose: document.getElementById("form-purpose").value.trim(),
+        rtu: document.getElementById("form-rtu").value,
+        min: parseInt(document.getElementById("form-min").value) || 1,
+        stock: parseInt(document.getElementById("form-stock").value) || 0,
+        inUse: parseInt(document.getElementById("form-inuse").value) || 0,
+        lot: document.getElementById("form-lot").value.trim(),
+        exp: document.getElementById("form-exp").value,
+        comments: document.getElementById("form-comments").value.trim(),
+      };
+
+      if (editId) {
+        // Edit existing
+        const item = reagents.find(r => r.id === editId);
+        Object.assign(item, data);
+        const total = item.stock + item.inUse;
+        if (total <= item.min || item.stock === 0) item.needsOrder = true;
+        showToast("Reagent updated successfully!");
+      } else {
+        // Add new
+        const newItem = {
+          id: Date.now().toString(),
+          ...data,
+          needsOrder: (data.stock + data.inUse) <= data.min || data.stock === 0
+        };
+        reagents.unshift(newItem);
+        showToast("New reagent added to inventory!");
+      }
+
+      saveData();
+      closeModal("add-item-modal");
+      document.getElementById("reagent-form").reset();
+      document.getElementById("form-id").value = "";
+    }
+
+    // Bi-Weekly Audit Print Generation
+    function triggerPrintAudit() {
+      const tbody = document.getElementById("audit-table-body");
+      const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+      
+      document.getElementById("print-audit-date").innerText = today;
+      document.getElementById("print-timestamp").innerText = `Printed: ${today} ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+
+      tbody.innerHTML = reagents.map(item => {
+        const total = item.stock + item.inUse;
+        const needsOrder = item.needsOrder || total <= item.min || item.stock === 0;
+
+        return `
+          <tr>
+            <td class="border border-slate-300 p-1 font-mono text-[10px]">${item.ref}</td>
+            <td class="border border-slate-300 p-1">${item.mfg}</td>
+            <td class="border border-slate-300 p-1 font-semibold">${item.name}</td>
+            <td class="border border-slate-300 p-1">${item.purpose}</td>
+            <td class="border border-slate-300 p-1 text-center">${item.rtu}</td>
+            <td class="border border-slate-300 p-1 text-center font-bold">${item.min}</td>
+            <td class="border border-slate-300 p-1 text-center">
+              Stock: ${item.stock}<br>
+              In Use: ${item.inUse}<br>
+              <strong>Total: ${total}</strong>
+            </td>
+            <td class="border border-slate-300 p-1 text-center font-bold text-slate-800">[ ✓ ]</td>
+            <td class="border border-slate-300 p-1 text-center font-bold text-slate-800">[ ✓ ]</td>
+            <td class="border border-slate-300 p-1">
+              ${item.comments ? item.comments : (item.exp ? `Exp: ${item.exp} Lot: ${item.lot}` : '')}
+            </td>
+            <td class="border border-slate-300 p-1 text-center font-bold ${needsOrder ? 'text-red-700 bg-red-50' : ''}">
+              ${needsOrder ? '✓ ORDER' : ''}
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      window.print();
+    }
+
+    // Export to CSV
+    function exportCSV() {
+      const headers = ["Reference #", "Manufacturer", "Item Name", "Test Purpose", "RTU", "MIN QTY", "Stock", "In Use", "Total QTY", "Lot #", "Expiration Date", "Needs Order Placed", "Comments"];
+      
+      const rows = reagents.map(r => [
+        `"${(r.ref || '').replace(/"/g, '""')}"`,
+        `"${(r.mfg || '').replace(/"/g, '""')}"`,
+        `"${(r.name || '').replace(/"/g, '""')}"`,
+        `"${(r.purpose || '').replace(/"/g, '""')}"`,
+        `"${r.rtu || ''}"`,
+        r.min,
+        r.stock,
+        r.inUse,
+        r.stock + r.inUse,
+        `"${r.lot || ''}"`,
+        `"${r.exp || ''}"`,
+        r.needsOrder ? "YES" : "NO",
+        `"${(r.comments || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Histology_Inventory_Export_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("Inventory exported to CSV successfully!");
+    }
+
+    // Toast Helper
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById("toast");
+      const text = document.getElementById("toast-message");
+      text.innerText = msg;
+
+      toast.classList.remove("opacity-0", "translate-y-24", "pointer-events-none");
+      if (isError) {
+        toast.classList.add("bg-rose-900");
+      } else {
+        toast.classList.remove("bg-rose-900");
+      }
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-24", "pointer-events-none");
+      }, 3500);
+    }
+
+    // Init
+    loadData();
+  </script>
+</body>
+</html>
