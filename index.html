@@ -1950,7 +1950,7 @@
 
       batch.fill = level;
       saveData();
-      const labelMap = { 'FULL': '~100% Full', 'HALF': '~50% Left', 'LOW': '~25% Low', 'CRITICAL': '<10% Critical' };
+      const labelMap = { 'FULL': '100% Full', 'HALF': '50% Left', 'LOW': '25% Low', 'CRITICAL': '10% Critical' };
       showToast(`Bottle volume updated: ${labelMap[level]}`);
     }
 
@@ -2329,30 +2329,30 @@
                         fill === 'LOW' ? 'bg-amber-100 text-amber-800' :
                         'bg-rose-100 text-rose-800 animate-pulse'
                       }">
-                        ${fill === 'FULL' ? '● ~100% Full' :
-                          fill === 'HALF' ? '● ~50% Left' :
-                          fill === 'LOW' ? '● ~25% Low' :
-                          '● <10% Critical'}
+                        ${fill === 'FULL' ? '● 100% Full' :
+                          fill === 'HALF' ? '● 50% Left' :
+                          fill === 'LOW' ? '● 25% Low' :
+                          '● 10% Critical'}
                       </span>
                     </div>
 
-                    <!-- 4 Equal Grid Buttons: Fits 100% of the box on ANY screen size -->
+                    <!-- 4 Clean Number + % Buttons -->
                     <div class="grid grid-cols-4 gap-1.5 w-full">
                       <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'FULL')" 
-                        class="py-1.5 px-1 rounded-md font-bold transition text-xs text-center truncate ${fill === 'FULL' ? 'bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
-                        ~100%
+                        class="py-1.5 rounded-md font-extrabold transition text-sm text-center ${fill === 'FULL' ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-700' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200'}">
+                        100%
                       </button>
                       <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'HALF')" 
-                        class="py-1.5 px-1 rounded-md font-bold transition text-xs text-center truncate ${fill === 'HALF' ? 'bg-blue-600 text-white shadow-xs ring-1 ring-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
-                        ~50%
+                        class="py-1.5 rounded-md font-extrabold transition text-sm text-center ${fill === 'HALF' ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-700' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200'}">
+                        50%
                       </button>
                       <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'LOW')" 
-                        class="py-1.5 px-1 rounded-md font-bold transition text-xs text-center truncate ${fill === 'LOW' ? 'bg-amber-500 text-white shadow-xs ring-1 ring-amber-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
-                        ~25%
+                        class="py-1.5 rounded-md font-extrabold transition text-sm text-center ${fill === 'LOW' ? 'bg-amber-500 text-white shadow-sm ring-1 ring-amber-600' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200'}">
+                        25%
                       </button>
                       <button type="button" onclick="setFillLevel('${item.id}', '${b.id}', 'CRITICAL')" 
-                        class="py-1.5 px-1 rounded-md font-bold transition text-xs text-center truncate ${fill === 'CRITICAL' ? 'bg-rose-600 text-white shadow-xs ring-1 ring-rose-700 animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
-                        &lt;10%
+                        class="py-1.5 rounded-md font-extrabold transition text-sm text-center ${fill === 'CRITICAL' ? 'bg-rose-600 text-white shadow-sm ring-1 ring-rose-700 animate-pulse' : 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200'}">
+                        10%
                       </button>
                     </div>
                   </div>
@@ -2360,7 +2360,7 @@
                   <!-- Slow Mover Alert Banner -->
                   ${willExpireBeforeEmpty ? `
                     <div class="text-xs bg-amber-50 text-amber-900 border border-amber-300 rounded-lg p-2 font-medium flex items-center justify-between">
-                      <span>⚠️ <strong>Slow Mover:</strong> Bottle is ${fill === 'FULL' ? '~100%' : '~50%'} full, but expires on <strong>${b.exp}</strong>! Discard remaining volume by expiration.</span>
+                      <span>⚠️ <strong>Slow Mover:</strong> Bottle is ${fill === 'FULL' ? '100%' : '50%'} full, but expires on <strong>${b.exp}</strong>! Discard remaining volume by expiration.</span>
                     </div>
                   ` : ''}
                 </div>
